@@ -826,6 +826,20 @@ a { color: inherit; }
   color: var(--ink-2);
   margin: 3px 0 0;
 }
+.plan-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.plan-links a {
+  font-size: .86rem;
+  color: var(--rose);
+  text-decoration: none;
+  border-bottom: 1.5px dotted currentColor;
+  width: fit-content;
+}
+.plan-links a:hover { color: var(--ink); }
 
 /* polaroid: white frame, tilt, a strip of tape */
 .plan-photo { position: relative; }

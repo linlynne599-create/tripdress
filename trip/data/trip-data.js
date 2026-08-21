@@ -151,7 +151,10 @@ window.TRIP = (function () {
         { time: '11:00–12:00', title: '莎士比亚书店', kind: 'sight', img: 'shakespeare' },
         { time: '12:30–14:00', title: '巴黎圣母院', kind: 'sight', status: 'todo', note: '免费，需提前 1–2 天在线预约', img: 'notre-dame' },
         { time: '15:00–17:00', title: '奥赛博物馆', kind: 'sight', status: 'booked', note: '与橘园美术馆联票 40 欧/两人', img: 'orsay' },
-        { time: '18:00–20:00', title: '玛黑区购物', kind: 'shop', img: 'marais' },
+        { time: '18:00–20:00', title: '玛黑区购物', kind: 'shop', img: 'marais', note: '小红书逛店攻略 ↓', links: [
+          { label: '巴黎购物分享｜给普通人的实在建议', url: 'https://www.xiaohongshu.com/discovery/item/6a6e0ba1000000003303774a?source=webshare&xhsshare=pc_web&xsec_token=AB_GtiQbPr1UCo9mZTDix8nvwtqYGU2nHipaUjaYzp5kM=&xsec_source=pc_share' },
+          { label: '服装人暴走玛黑区 2w 步｜逛店附路线', url: 'https://www.xiaohongshu.com/discovery/item/68afe07f000000001d017000?source=webshare&xhsshare=pc_web&xsec_token=ABjxbOie2PouyjIzfFUDDaNEbVg6r7j6iQ6MiT3xDveSE=&xsec_source=pc_share' },
+        ] },
         { time: '21:00', title: 'Le Caveau de la Huchette 爵士酒吧', kind: 'night', img: 'jazz-bar' },
       ],
     },

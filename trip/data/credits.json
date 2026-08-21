@@ -42,28 +42,28 @@
     "author": "用户提供"
   },
   "notre-dame": {
-    "file": "Paris - Cathédrale Notre-Dame - Façade ouest - PA00086250 - 002.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Paris_-_Cath%C3%A9drale_Notre-Dame_-_Fa%C3%A7ade_ouest_-_PA00086250_-_002.jpg",
-    "license": "CC BY-SA 3.0",
-    "author": "Thesupermat"
+    "file": "notre-dame.jpg",
+    "source": "用户提供 · 巴黎圣母院内部",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "luxembourg": {
-    "file": "Jardinluxembourgpathways.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Jardinluxembourgpathways.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "Janine Sprout"
+    "file": "luxembourg.jpg",
+    "source": "用户提供 · 卢森堡花园",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "shakespeare": {
-    "file": "Shakespeare and Company, Paris, 2009.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Shakespeare_and_Company,_Paris,_2009.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "Photograph by Mike Peel (www.mikepeel.net)."
+    "file": "shakespeare.jpg",
+    "source": "用户提供 · 莎士比亚书店",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "marais": {
-    "file": "Paris 3e Place des Vosges Arcades 896.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Paris_3e_Place_des_Vosges_Arcades_896.jpg",
-    "license": "CC BY-SA 3.0",
-    "author": "GFreihalter"
+    "file": "marais.jpg",
+    "source": "用户提供 · 玛黑区逛店",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "jazz-bar": {
     "file": "Le Caveau de la Huchette.jpg",
@@ -324,10 +324,10 @@
     "author": "Felix König"
   },
   "orsay": {
-    "file": "Main hall of the Musée d'Orsay (52254475093).jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Main_hall_of_the_Mus%C3%A9e_d%27Orsay_(52254475093).jpg",
-    "license": "CC BY-SA 2.0",
-    "author": "Adrian Scottow from London, England"
+    "file": "orsay.jpg",
+    "source": "用户提供 · 奥赛博物馆大钟",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "seine": {
     "file": "seine.jpg",

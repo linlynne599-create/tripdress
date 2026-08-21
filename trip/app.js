@@ -282,6 +282,19 @@
 
     if (it.note) main.appendChild(el('p', 'plan-note', it.note));
 
+    if (it.links && it.links.length) {
+      const box = el('div', 'plan-links');
+      it.links.forEach((lnk) => {
+        const a = document.createElement('a');
+        a.href = lnk.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = lnk.label;
+        box.appendChild(a);
+      });
+      main.appendChild(box);
+    }
+
     if (it.food) {
       const box = el('div', 'food-box');
       box.appendChild(el('h4', null, it.food.title));
