@@ -715,6 +715,16 @@ a { color: inherit; }
   width: 100%; height: 100%;
   object-fit: cover;
 }
+.day-photo.is-portrait {
+  min-height: 300px;
+}
+.day-photo.is-portrait img {
+  object-fit: contain;
+  object-position: center center;
+}
+.day-photo.is-portrait::after {
+  background: linear-gradient(110deg, rgba(70, 51, 40, .22), transparent 55%);
+}
 .day-photo::after {
   content: "";
   position: absolute; inset: 0;
@@ -842,11 +852,9 @@ a { color: inherit; }
 .plan-links a:hover { color: var(--ink); }
 
 /* polaroid: white frame, tilt, a strip of tape */
-.plan-photo { position: relative; }
+.plan-photo { position: relative; align-self: start; }
 .plan-thumb {
   width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
   background: var(--cream-2);
   border: var(--bd-thin);
   border-radius: 3px;
@@ -855,6 +863,19 @@ a { color: inherit; }
   box-shadow: var(--ink-shadow-sm);
   transform: rotate(1.1deg);
   transition: transform .25s, box-shadow .25s;
+}
+/* landscape keeps the wide postcard frame */
+.plan-thumb.is-landscape {
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+/* portrait: let the photo decide its own height */
+.plan-thumb.is-portrait {
+  aspect-ratio: auto;
+  height: auto;
+  max-height: 380px;
+  object-fit: contain;
+  object-position: center top;
 }
 .plan > li:nth-child(even) .plan-thumb { transform: rotate(-1.3deg); }
 .plan-thumb:hover {

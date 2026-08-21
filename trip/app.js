@@ -12,6 +12,19 @@
   };
   const img = (key) => `assets/img/${key}.jpg`;
 
+  // Tall phone photos shouldn't be forced into a 3:2 crop.
+  function markPhotoOrientation(im, onPortrait) {
+    const apply = () => {
+      if (!im.naturalWidth) return;
+      const portrait = im.naturalHeight > im.naturalWidth;
+      im.classList.toggle('is-portrait', portrait);
+      im.classList.toggle('is-landscape', !portrait);
+      if (onPortrait) onPortrait(portrait);
+    };
+    if (im.complete) apply();
+    else im.addEventListener('load', apply, { once: true });
+  }
+
   const KIND_ICON = {
     flight: '✈', train: '🚆', transfer: '🚕', car: '🚗', sight: '◎',
     food: '🍽', shop: '🛍', night: '🌙', hotel: '🛏', rest: '☕',
@@ -319,6 +332,7 @@
       im.alt = it.title;
       im.loading = 'lazy';
       im.dataset.cap = it.title;
+      markPhotoOrientation(im);
       photo.appendChild(im);
     }
     li.appendChild(photo);
@@ -337,6 +351,9 @@
     pim.src = img(d.img);
     pim.alt = d.city;
     pim.loading = d.n <= 2 ? 'eager' : 'lazy';
+    markPhotoOrientation(pim, (portrait) => {
+      if (portrait) photo.classList.add('is-portrait');
+    });
     photo.appendChild(pim);
     photo.appendChild(el('span', 'day-num', d.n === 0 ? 'DAY 0' : 'DAY ' + d.n));
     head.appendChild(photo);
