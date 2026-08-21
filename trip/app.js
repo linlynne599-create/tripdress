@@ -281,6 +281,25 @@
   }
 
   /* =========================================================== timeline */
+  function renderOutfit(o) {
+    const box = el('div', 'day-outfit');
+    const head = el('div', 'day-outfit-head');
+    head.appendChild(el('span', 'day-outfit-icon', '👗'));
+    head.appendChild(el('h4', null, '今日穿搭'));
+    if (o.summary) head.appendChild(el('p', 'day-outfit-summary', o.summary));
+    box.appendChild(head);
+
+    if (o.lines && o.lines.length) {
+      const ul = el('ul', 'day-outfit-list');
+      o.lines.forEach((line) => {
+        const li = el('li', line.startsWith('⛪') ? 'is-church' : null, line);
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+    return box;
+  }
+
   function planItem(it) {
     const li = el('li');
     li.appendChild(el('div', 'plan-time', it.time || ''));
@@ -374,6 +393,7 @@
     card.appendChild(head);
 
     const body = el('div', 'day-body');
+    if (d.outfit) body.appendChild(renderOutfit(d.outfit));
     const ul = el('ul', 'plan');
     d.items.forEach((it) => ul.appendChild(planItem(it)));
     body.appendChild(ul);

@@ -955,6 +955,46 @@ a { color: inherit; }
 .hotel-box .hotel-detail { color: var(--ink-2); }
 .hotel-box a { color: #4c6034; text-decoration: none; border-bottom: 1.5px dotted currentColor; }
 
+.day-outfit {
+  margin: 0 0 18px;
+  background: var(--rose-soft);
+  border: var(--bd-thin);
+  border-radius: var(--wob-sm);
+  padding: 14px 18px;
+  transform: rotate(.35deg);
+}
+.day-outfit-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin-bottom: 8px;
+}
+.day-outfit-icon { font-size: 1.05rem; line-height: 1; }
+.day-outfit h4 {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+}
+.day-outfit-summary {
+  margin: 0;
+  flex: 1 1 100%;
+  font-size: .9rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+.day-outfit-list {
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-size: .88rem;
+  color: var(--ink-2);
+}
+.day-outfit-list li { margin-bottom: 4px; }
+.day-outfit-list li.is-church {
+  color: #8f4227;
+  font-weight: 600;
+}
+
 .day-tips {
   margin: 14px 0 0;
   padding: 0 0 0 20px;

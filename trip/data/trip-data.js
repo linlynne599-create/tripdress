@@ -67,6 +67,10 @@ window.TRIP = (function () {
       cityId: 'xiamen',
       theme: '厦门 → 新加坡',
       img: 'xiamen',
+      outfit: {
+        summary: '红眼出发前 · 以舒适为主',
+        lines: ['穿宽松层叠，飞机上冷随时加减', '运动鞋/平底鞋，托运行李里别只留高跟鞋'],
+      },
       items: [
         { time: '19:30', title: '厦门 T3 机场集合', note: '19:30 到机场集合' },
         { time: '21:30–01:40', title: '厦门 T3 → 新加坡樟宜 T1', kind: 'flight', status: 'booked' },
@@ -80,6 +84,10 @@ window.TRIP = (function () {
       cityId: 'singapore',
       theme: '中转一日游',
       img: 'singapore',
+      outfit: {
+        summary: '新加坡闷热 · 透气 + 防雨',
+        lines: ['速干短袖/薄裙，雨伞放手边', '商场/地铁空调猛，薄外套或衬衫备一件'],
+      },
       items: [
         {
           time: '全天',
@@ -120,6 +128,14 @@ window.TRIP = (function () {
       cityId: 'paris',
       theme: '落地即开卷',
       img: 'louvre',
+      outfit: {
+        summary: '降落巴黎 · 比国内凉一截',
+        lines: [
+          '夹层：内搭 + 薄风衣/针织，傍晚塞纳河会更凉',
+          '卢浮宫到铁塔全天步行，鞋比造型重要',
+          '出片可以：法式内搭 + 外套，到景点再脱',
+        ],
+      },
       hotel: {
         name: 'Best Western Paris Porte de Versailles',
         addr: '1 bis, Avenue Jean Jaurès',
@@ -146,6 +162,15 @@ window.TRIP = (function () {
       cityId: 'paris',
       theme: '左岸文艺日',
       img: 'notre-dame',
+      outfit: {
+        summary: '左岸 + 圣母院 · 兼顾入堂与暴走',
+        lines: [
+          '⛪ 巴黎圣母院：肩、膝需遮，吊带/超短裤可能被拦',
+          '奥赛、玛黑逛街：同一套 modest 打底最省事',
+          '玛黑区 2w 步，穿能走的平底鞋',
+          '爵士吧晚上：白天那套加个小配饰就行',
+        ],
+      },
       items: [
         { time: '09:00–10:00', title: '卢森堡花园', kind: 'sight', note: '免预约', img: 'luxembourg' },
         { time: '11:00–12:00', title: '莎士比亚书店', kind: 'sight', img: 'shakespeare' },
@@ -166,6 +191,15 @@ window.TRIP = (function () {
       cityId: 'paris',
       theme: '右岸 + 蒙马特',
       img: 'montmartre',
+      outfit: {
+        summary: '圣心堂日 · 比圣母院更严',
+        lines: [
+          '⛪ 圣心堂：不能无袖、超短、低胸、过于紧身',
+          '建议及膝裙/长裤 + 有袖衬衫或薄针织',
+          '蒙马特坡道多，放弃厚底高跟',
+          '老佛爷室内逛，外层好脱',
+        ],
+      },
       items: [
         { time: '09:00–10:15', title: '橘园美术馆', kind: 'sight', status: 'booked', note: '与奥赛联票 40 欧/两人', img: 'orangerie' },
         { time: '10:30–12:00', title: '巴黎歌剧院', kind: 'sight', img: 'opera-garnier' },
@@ -183,6 +217,15 @@ window.TRIP = (function () {
       theme: '全天大迁徙',
       img: 'varenna',
       intense: true,
+      outfit: {
+        summary: '海陆空连轴转 · 穿着要能扛',
+        lines: [
+          '清晨起飞：舒适裤装 + 软壳/针织，飞机上看风景别冻着',
+          '科莫湖坐船风大，薄外套别托运',
+          '瓦伦纳/贝拉焦台阶多，好走的鞋',
+          '深夜抵威尼斯，下火车加一层',
+        ],
+      },
       hotel: { name: '威尼斯梅斯特雷住宿城市公寓酒店', nights: '9.28–9.29' },
       items: [
         { time: '07:30–09:05', title: '巴黎奥利 T3 → 米兰马尔彭萨 T1', kind: 'flight', status: 'booked', note: '航班 TO3940' },
@@ -205,6 +248,14 @@ window.TRIP = (function () {
       cityId: 'venice',
       theme: '补觉 + city walk',
       img: 'venice-walk',
+      outfit: {
+        summary: '威尼斯躺平日 · 运河边出片',
+        lines: [
+          '无硬性教堂要求，裙装/牛仔裤都可',
+          '桥梁台阶是全场最难 walk，平底鞋必须',
+          '运河边风大，薄披肩拍照也好看',
+        ],
+      },
       hotel: {
         name: '佛罗伦萨普鲁斯酒店',
         addr: "Via Santa Caterina D'Alessandria, 15, 50129 Firenze FI",
@@ -226,6 +277,15 @@ window.TRIP = (function () {
       cityId: 'florence',
       theme: '文艺复兴一日',
       img: 'florence',
+      outfit: {
+        summary: '佛罗伦萨一日游 · 百花大教堂要过关',
+        lines: [
+          '⛪ 圣母百花大教堂（入内/登穹顶）：肩、膝需遮',
+          '老桥、领主广场步行多，鞋优先',
+          '登米开朗基罗广场坡陡，避开细高跟',
+          '晚上火车去罗马，别穿勒脚的鞋',
+        ],
+      },
       hotel: {
         name: 'The Independent Hotel',
         addr: 'Via Volturno, 48, 00185 Roma RM',
@@ -249,6 +309,17 @@ window.TRIP = (function () {
       theme: '一天走完两千年',
       img: 'colosseum',
       intense: true,
+      outfit: {
+        summary: '上午暴晒太阳 · 下午梵蒂冈过关装',
+        lines: [
+          '斗兽场：帽、墨镜、防晒、透气但 modest',
+          '⛪ 万神殿 & 圣依纳爵堂：入堂肩、膝遮住',
+          '⛪ 圣彼得大教堂：无袖/吊带/短裤/短裙一律不行',
+          '15:00 起建议：及膝裙或长裤 + 有袖（短袖 OK）',
+          '备大围巾/开衫，安检不过关可临时裹上',
+          '鞋：拒绝拖鞋/人字拖',
+        ],
+      },
       items: [
         {
           time: '08:30–11:30',
@@ -271,7 +342,7 @@ window.TRIP = (function () {
           time: '14:45–15:15',
           title: '打车前往梵蒂冈圣彼得广场',
           kind: 'transfer',
-          note: '免费入场。严禁无袖上衣、吊带、短裤或短裙，肩膀和膝盖必须完全遮住',
+          note: '着装见当日穿搭建议 · 免费入场',
           img: 'st-peters-square',
         },
         { time: '15:15–18:30', title: '圣彼得大教堂', kind: 'sight', status: 'todo', note: '登顶需要购票', img: 'st-peters' },
@@ -286,6 +357,14 @@ window.TRIP = (function () {
       cityId: 'mallorca',
       theme: '上午暴走，下午飞海岛',
       img: 'orange-garden',
+      outfit: {
+        summary: '罗马上午爬坡 · 下午飞海岛换度假风',
+        lines: [
+          '上午真理之口/橘子公园：modest 轻便，好走的鞋',
+          '如进周边小堂：肩、膝基本遮住即可',
+          '下午飞马略卡，机上可换更轻薄；入境后短袖 + 薄外套',
+        ],
+      },
       items: [
         { time: '08:30–09:00', title: '退房寄行李，打车去真理之口', kind: 'transfer', note: '排队就 pass', img: 'bocca' },
         { time: '09:15–10:45', title: '真理之口步行上山 → 橘子公园', kind: 'sight', img: 'orange-garden' },
@@ -308,12 +387,21 @@ window.TRIP = (function () {
       cityId: 'mallorca',
       theme: '山中小镇自驾',
       img: 'soller',
+      outfit: {
+        summary: '马略卡自驾 · 山风 + 小镇',
+        lines: [
+          '驾驶舒适：裤装 + 薄层，方便上下车',
+          '索列尔/瓦尔德摩萨海拔略高，比海边凉，带件外套',
+          '无教堂硬性要求，色彩亮一点出片',
+        ],
+      },
       items: [
         { time: '08:00–08:40', title: '自驾到索列尔', kind: 'car', note: '走隧道快速路线，约 40 分钟' },
         { time: '08:40–10:30', title: '索列尔小镇漫步 + brunch', kind: 'sight', img: 'soller' },
         { time: '10:30–11:05', title: '索列尔 → 瓦尔德摩萨', kind: 'car' },
         { time: '11:05–12:30', title: '瓦尔德摩萨小镇漫步', kind: 'sight', img: 'valldemossa' },
-        { time: '15:45–17:00', title: '瓦尔德摩萨 → 福门托尔角看日落', kind: 'sight', img: 'formentor' },
+        { time: '15:45–16:30', title: '福门托尔灯塔', kind: 'sight', img: 'formentor-lighthouse' },
+        { time: '16:30–17:00', title: '福门托尔角', kind: 'sight', note: '看日落', img: 'formentor' },
       ],
     },
     {
@@ -324,6 +412,14 @@ window.TRIP = (function () {
       cityId: 'mallorca',
       theme: '溶洞音乐会 + 果冻海',
       img: 'cala-llombards',
+      outfit: {
+        summary: '溶洞 + 果冻海 · 泳装日',
+        lines: [
+          '龙洞洞内凉，比海边低好几度，带薄长袖',
+          '三连海滩：泳衣穿里面，外面罩衫/沙滩裙，夹脚拖 OK',
+          '帕尔马 city walk 晚上：换干衣服 + 薄外套',
+        ],
+      },
       items: [
         {
           time: '08:30–09:30',
@@ -352,6 +448,16 @@ window.TRIP = (function () {
       theme: '高迪日',
       img: 'sagrada',
       intense: true,
+      outfit: {
+        summary: '05:30 起床 · 上午教堂下午山高',
+        lines: [
+          '⛪ 圣家堂：肩需遮、裙/裤过膝，热裤/吊带不行',
+          '一早进城：穿能直接进教堂的一套，别指望外面现买',
+          '⛪ Tibidabo 圣心：风大需长袖 + 入堂 modest',
+          '圣家堂光线 13:00 前后最好，外套选易脱的',
+          '爬山 + 缆车，运动鞋；日落后下山会冷',
+        ],
+      },
       hotel: {
         name: '卡斯蒂利亚阿提亚姆酒店',
         addr: 'Carrer de Valldonzella, 5, Ciutat Vella, 08001 Barcelona',
@@ -371,7 +477,7 @@ window.TRIP = (function () {
           kind: 'transfer',
           note: 'Peu del Funicular 地铁站坐第二节车厢 → 缆车 → 111 路公交',
         },
-        { time: '16:30–19:00', title: 'Tibidabo 圣心大教堂', kind: 'sight', note: '记得带长袖，山上风大；看日落缆车', img: 'tibidabo' },
+        { time: '16:30–19:00', title: 'Tibidabo 圣心大教堂', kind: 'sight', note: '山上风大；看日落缆车 · 着装见当日穿搭', img: 'tibidabo' },
       ],
     },
     {
@@ -382,6 +488,14 @@ window.TRIP = (function () {
       cityId: 'barcelona',
       theme: '买买买 + 退税',
       img: 'passeig-de-gracia',
+      outfit: {
+        summary: '巴塞罗那购物日 · 轻松好看',
+        lines: [
+          '毕加索博物馆/格拉西亚大道：步行友好鞋 + 薄外套',
+          '无教堂硬性要求，背小包方便退税血拼',
+          '晚上飞长途，穿飞机上最舒服那套',
+        ],
+      },
       items: [
         { time: '08:30–09:00', title: '酒店退房，箱子寄存酒店', kind: 'hotel' },
         { time: '09:15–10:45', title: '毕加索博物馆', kind: 'sight', img: 'picasso-museum' },
@@ -538,6 +652,7 @@ window.TRIP = (function () {
     { item: '压力袜', who: '', note: '防止腿水肿，按需' },
     { item: '眼罩', who: '' },
     { item: '飞机腰枕', who: '' },
+    { item: '大围巾/薄开衫', who: '全员', note: '进教堂不过关时可临时披肩' },
     { item: '泳衣', who: '', note: '马略卡果冻海' },
     { item: '堵门神器', who: '美英' },
     { item: '警报器', who: '美英' },

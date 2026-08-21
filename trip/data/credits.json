@@ -120,10 +120,10 @@
     "author": "Mohamed alazrak"
   },
   "bellagio": {
-    "file": "Shopping alley of Bellagio 01.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Shopping_alley_of_Bellagio_01.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "Oscar Costero"
+    "file": "bellagio.jpg",
+    "source": "用户提供 · 贝拉焦",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "como": {
     "file": "Rear deck of Lake Como ferry, with passengers.jpg",
@@ -258,10 +258,16 @@
     "author": "Tommie Hansen from Stockholm, Sweden"
   },
   "formentor": {
-    "file": "Pollença - Ma-10 - (Mirador de Mal Pas) 04 ies.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Pollen%C3%A7a_-_Ma-10_-_(Mirador_de_Mal_Pas)_04_ies.jpg",
-    "license": "CC BY-SA 3.0",
-    "author": "Frank Vincentz"
+    "file": "formentor.jpg",
+    "source": "用户提供 · 福门托尔角",
+    "license": "私人照片",
+    "author": "用户提供"
+  },
+  "formentor-lighthouse": {
+    "file": "formentor-lighthouse.jpg",
+    "source": "用户提供 · 福门托尔灯塔",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "soller": {
     "file": "Tram 23 leading 4-car train in Port de Sóller, next to the bay.jpg",
@@ -276,10 +282,10 @@
     "author": "Abrget47j"
   },
   "drach": {
-    "file": "Interior de las Cuevas del Drach.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Interior_de_las_Cuevas_del_Drach.jpg",
-    "license": "CC BY 2.0",
-    "author": "no"
+    "file": "drach.jpg",
+    "source": "用户提供 · 龙洞溶洞音乐会",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "barcelona": {
     "file": "People walking along La Rambla.jpg",
@@ -294,10 +300,10 @@
     "author": "Sagrada Família (oficial)"
   },
   "casa-batllo": {
-    "file": "Casa Batlló, Barcelona.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Casa_Batll%C3%B3,_Barcelona.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "Teodoir"
+    "file": "casa-batllo.jpg",
+    "source": "用户提供 · 巴特罗之家",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "casa-mila": {
     "file": "Chimneys on the rooftop terrace of Gaudi's La Pedrera in Barcelona.jpg",
@@ -306,16 +312,16 @@
     "author": "Bravodelnorte"
   },
   "passeig-de-gracia": {
-    "file": "Sidewalk on Passeig de Gràcia (53346832716).jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Sidewalk_on_Passeig_de_Gr%C3%A0cia_(53346832716).jpg",
-    "license": "CC BY 2.0",
-    "author": "Paul Asman and Jill Lenoble"
+    "file": "passeig-de-gracia.jpg",
+    "source": "用户提供 · 格拉西亚大道 / 巴塞罗那老城",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "picasso-museum": {
-    "file": "431 Museu Picasso, Palau Finestres, c. Montcada 23 (Barcelona), pati.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:431_Museu_Picasso,_Palau_Finestres,_c._Montcada_23_(Barcelona),_pati.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "Enric"
+    "file": "picasso-museum.jpg",
+    "source": "用户提供 · 毕加索博物馆",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "tibidabo": {
     "file": "Giradabo at Tibidabo amusement park in Barcelona.jpg",
