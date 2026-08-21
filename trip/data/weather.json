@@ -1,0 +1,66 @@
+{
+  "singapore": {
+    "label": "新加坡",
+    "high": 29.9,
+    "low": 24.6,
+    "wetShare": 0.8,
+    "samples": 10,
+    "window": "9.24–9.24"
+  },
+  "paris": {
+    "label": "巴黎",
+    "high": 18.9,
+    "low": 10.9,
+    "wetShare": 0.4,
+    "samples": 40,
+    "window": "9.25–9.28"
+  },
+  "como": {
+    "label": "科莫湖",
+    "high": 21.5,
+    "low": 14.4,
+    "wetShare": 0.3,
+    "samples": 10,
+    "window": "9.28–9.28"
+  },
+  "venice": {
+    "label": "威尼斯",
+    "high": 22.0,
+    "low": 14.8,
+    "wetShare": 0.2,
+    "samples": 20,
+    "window": "9.28–9.29"
+  },
+  "florence": {
+    "label": "佛罗伦萨",
+    "high": 23.6,
+    "low": 12.8,
+    "wetShare": 0.2,
+    "samples": 20,
+    "window": "9.29–9.30"
+  },
+  "rome": {
+    "label": "罗马",
+    "high": 23.8,
+    "low": 15.2,
+    "wetShare": 0.3,
+    "samples": 30,
+    "window": "9.30–10.2"
+  },
+  "mallorca": {
+    "label": "马略卡",
+    "high": 25.1,
+    "low": 18.0,
+    "wetShare": 0.275,
+    "samples": 40,
+    "window": "10.2–10.5"
+  },
+  "barcelona": {
+    "label": "巴塞罗那",
+    "high": 23.3,
+    "low": 16.0,
+    "wetShare": 0.2,
+    "samples": 20,
+    "window": "10.5–10.6"
+  }
+}

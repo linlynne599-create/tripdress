@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🐱🐡🐶🐫🎨 欧洲蜜月行 · 14 日行程</title>
+<meta name="description" content="五个女孩子的欧洲 14 日：巴黎 · 科莫湖 · 威尼斯 · 佛罗伦萨 · 罗马 · 马略卡 · 巴塞罗那，行程、交通与清单一页看完。" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<!-- 霞鹜文楷：手写楷体，按 unicode 分片，只下载页面用到的字 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<a class="skip-link" href="#day-timeline">跳到行程</a>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark">🐱🐡🐶🐫🎨</span>
+      <span class="brand-text">欧洲蜜月行</span>
+    </a>
+    <nav class="topnav" aria-label="页面导航">
+      <a href="#route">路线</a>
+      <a href="#weather">天气</a>
+      <a href="#day-timeline">每日行程</a>
+      <a href="#transport">交通</a>
+      <a href="#packing">必带品</a>
+      <a href="#oath">宣誓</a>
+    </nav>
+    <a class="src-link" href="https://docs.qq.com/sheet/DVEVQbkVYVWFoaW9k" target="_blank" rel="noopener">原始表格 ↗</a>
+  </div>
+  <div class="scroll-progress" id="scroll-progress"></div>
+</header>
+
+<!-- ------------------------------------------------------------------ hero -->
+<section class="hero" id="top">
+  <div class="hero-art" role="img" aria-label="五个女孩子在欧洲旅行的手绘插画"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="hero-kicker" id="hero-kicker"></p>
+      <h1 class="hero-title">
+        <span class="hero-emoji">🐱🐡🐶🐫🎨</span>
+        <span class="line">欧洲蜜月行<span class="hero-badge">14 日</span></span>
+      </h1>
+      <p class="hero-sub" id="hero-sub"></p>
+      <div class="hero-crew" id="hero-crew"></div>
+      <div class="hero-stats" id="hero-stats"></div>
+      <div class="hero-countdown" id="hero-countdown"></div>
+    </div>
+  </div>
+</section>
+
+<main>
+
+<!-- ----------------------------------------------------------------- route -->
+<section class="section" id="route">
+  <div class="section-head">
+    <p class="eyebrow"><span class="em">🗺</span>01 — 路线</p>
+    <h2><span>我们怎么走</span></h2>
+    <p class="lede">
+      长途两段中转（新加坡、多哈），落地巴黎往东南推进到罗马，再飞地中海的马略卡，最后从巴塞罗那回国。
+      鼠标停在地图上的城市就能看那几天的安排。
+    </p>
+  </div>
+
+  <div class="route-grid">
+    <figure class="map-card">
+      <div class="map-wrap" id="map-wrap">
+        <svg id="euro-map" viewBox="0 0 800 620" role="img" aria-label="欧洲段路线示意地图"></svg>
+        <div class="map-tip" id="map-tip" hidden></div>
+      </div>
+      <figcaption>欧洲段路线 · 国界数据 Natural Earth (world-atlas 50m)</figcaption>
+    </figure>
+
+    <div class="route-side">
+      <div class="longhaul">
+        <h3><span>✈</span>长途飞行</h3>
+        <ol class="longhaul-list" id="longhaul-list"></ol>
+      </div>
+      <div class="nights">
+        <h3><span>🛏</span>住宿分布</h3>
+        <div class="nights-bars" id="nights-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chain" id="route-chain" aria-label="城市顺序"></div>
+</section>
+
+<!-- --------------------------------------------------------------- weather -->
+<section class="section section-alt" id="weather">
+  <div class="section-head">
+    <p class="eyebrow"><span class="em">🌤</span>02 — 天气</p>
+    <h2><span>那几天大概什么天气</span></h2>
+    <p class="lede" id="weather-lede"></p>
+  </div>
+  <div class="weather-grid" id="weather-grid"></div>
+</section>
+
+<!-- -------------------------------------------------------------- timeline -->
+<section class="section" id="day-timeline">
+  <div class="section-head">
+    <p class="eyebrow"><span class="em">📔</span>03 — 每日行程</p>
+    <h2><span>14 天，一天一天看</span></h2>
+    <p class="lede">
+      标 <span class="chip chip-todo">待预约</span> 的是还没订的，标 <span class="chip chip-booked">已订</span> 的可以放心。
+      三天被标成「硬仗」：转场多、起得早。
+    </p>
+  </div>
+
+  <div class="day-filter" id="day-filter" role="group" aria-label="按城市筛选"></div>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- ------------------------------------------------------------- transport -->
+<section class="section section-alt" id="transport">
+  <div class="section-head">
+    <p class="eyebrow"><span class="em">🚂</span>04 — 交通</p>
+    <h2><span>飞机、火车和接送机</span></h2>
+    <p class="lede">
+      欧洲段一共 10 段位移，另外有 6 次包车接送机。接送机的上车时间都列在下面，出发前对一遍。
+    </p>
+  </div>
+
+  <div class="transport-grid">
+    <div class="panel panel-wide">
+      <h3><span>✈</span>欧洲段航班 · 火车 · 自驾</h3>
+      <div class="table-scroll">
+        <table class="data-table" id="legs-table"></table>
+      </div>
+      <p class="panel-note">长途进出的四段航班见上面「路线」一节。</p>
+    </div>
+    <div class="panel panel-wide">
+      <h3><span>🚐</span>接送机时间</h3>
+      <ul class="transfer-list" id="transfer-list"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- --------------------------------------------------------------- packing -->
+<section class="section section-alt" id="packing">
+  <div class="section-head">
+    <p class="eyebrow"><span class="em">🎒</span>05 — 必带品</p>
+    <h2><span>行前 check</span></h2>
+    <p class="lede">勾选状态存在这台设备的浏览器里，刷新不会丢。</p>
+  </div>
+
+  <div class="packing-head">
+    <div class="progress-ring" id="packing-progress"></div>
+    <button class="btn-ghost" id="packing-reset" type="button">清空勾选</button>
+  </div>
+  <ul class="packing-list" id="packing-list"></ul>
+</section>
+
+<!-- ------------------------------------------------------------------- oath -->
+<section class="section" id="oath">
+  <div class="section-head">
+    <p class="eyebrow"><span class="em">🤙</span>06 — 出发前</p>
+    <h2><span>旅行宣誓</span></h2>
+    <p class="lede">五个人一起念一遍，念完就不许反悔了。</p>
+  </div>
+  <div class="oath-card" id="oath-card"></div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <p class="footer-emoji">🐱🐡🐶🐫🎨</p>
+  <p>
+    数据来自腾讯文档
+    <a href="https://docs.qq.com/sheet/DVEVQbkVYVWFoaW9k" target="_blank" rel="noopener">《000》</a>
+    的 行程表 / 必带品 / 包车信息 三个工作表。
+    天气是近 10 年同期实测平均，来自
+    <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>。
+  </p>
+  <p class="credit">
+    城市照片来自 Wikimedia Commons，版权归各自作者，按其许可协议使用；开头的插画是给这趟旅行画的。
+    <button class="btn-link" id="credits-toggle" type="button">查看图片来源</button>
+  </p>
+  <div class="credits" id="credits" hidden></div>
+</footer>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox-close" id="lightbox-close" type="button" aria-label="关闭">×</button>
+  <img id="lightbox-img" alt="" />
+  <p class="lightbox-cap" id="lightbox-cap"></p>
+</div>
+
+<script src="data/trip-data.js"></script>
+<script src="data/europe-geo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
