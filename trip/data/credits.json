@@ -30,16 +30,16 @@
     "author": "zoetnet"
   },
   "eiffel": {
-    "file": "Top of the Eiffel Tower.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Top_of_the_Eiffel_Tower.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "Eutouring"
+    "file": "eiffel.jpg",
+    "source": "用户提供 · 塞纳河畔远眺埃菲尔铁塔",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "louvre": {
-    "file": "Louvre-peinture-francaise-p1020324.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Louvre-peinture-francaise-p1020324.jpg",
-    "license": "Public domain",
-    "author": "Hubert Robert"
+    "file": "louvre.jpg",
+    "source": "用户提供 · 卢浮宫馆内打卡",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "notre-dame": {
     "file": "Paris - Cathédrale Notre-Dame - Façade ouest - PA00086250 - 002.jpg",
@@ -102,10 +102,10 @@
     "author": "APK"
   },
   "champs-elysees": {
-    "file": "\"Arabian Oud\" shop at Avenue des Champs-Élysées (36952306463).jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:%22Arabian_Oud%22_shop_at_Avenue_des_Champs-%C3%89lys%C3%A9es_(36952306463).jpg",
-    "license": "CC BY-SA 2.0",
-    "author": "Huỳnh Phạm So Ny's Album"
+    "file": "champs-elysees.jpg",
+    "source": "用户提供 · 香榭丽舍大道与凯旋门",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "milan": {
     "file": "Interior of Milano Centrale 2022-09-28 06.jpg",
@@ -330,9 +330,9 @@
     "author": "Adrian Scottow from London, England"
   },
   "seine": {
-    "file": "Sightseeing boat, Seine, Paris 26 October 2016.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Sightseeing_boat,_Seine,_Paris_26_October_2016.jpg",
-    "license": "CC BY 2.0",
-    "author": "Guilhem Vellut from Paris, France"
+    "file": "seine.jpg",
+    "source": "用户提供 · 塞纳河夜游游船",
+    "license": "私人照片",
+    "author": "用户提供"
   }
 }
