@@ -213,7 +213,8 @@ window.TRIP = (function () {
       },
       items: [
         { time: '上午', title: '睡到自然醒', kind: 'rest' },
-        { time: '白天', title: '威尼斯 city walk：沉船书店、赤足桥', kind: 'sight', img: 'venice-walk' },
+        { time: '白天', title: '沉船书店', kind: 'sight', img: 'venice-walk' },
+        { time: '白天', title: '赤足桥', kind: 'sight', img: 'ponte-scalzi' },
         { time: '最晚 19:26–21:39', title: '威尼斯 → 佛罗伦萨', kind: 'train', status: 'todo' },
       ],
     },

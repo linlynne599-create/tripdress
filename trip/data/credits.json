@@ -138,10 +138,16 @@
     "author": "This Photo was taken by Wolfgang Moroder.  \n\nFeel free to use my photos, but please mention me as the author and send me"
   },
   "venice-walk": {
-    "file": "Libreria Acqua Alta, Venice (31043494880).jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Libreria_Acqua_Alta,_Venice_(31043494880).jpg",
-    "license": "CC BY 2.0",
-    "author": "Dimitris Kamaras from Athens, Greece"
+    "file": "venice-walk.jpg",
+    "source": "用户提供 · 沉船书店 Libreria Acqua Alta",
+    "license": "私人照片",
+    "author": "用户提供"
+  },
+  "ponte-scalzi": {
+    "file": "ponte-scalzi.jpg",
+    "source": "用户提供 · 威尼斯赤足桥一带",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "florence": {
     "file": "Florence, Italy, Brunelleschi's Dome of Florence Cathedral.jpg",
@@ -150,10 +156,10 @@
     "author": "Vyacheslav Argenberg"
   },
   "signoria": {
-    "file": "Perseus with the Head of Medusa (Perseo con la testa di Medusa), Loggia dei Lanzi, Florence (26676458055).jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Perseus_with_the_Head_of_Medusa_(Perseo_con_la_testa_di_Medusa),_Loggia_dei_Lanzi,_Florence_(26676458055).jpg",
-    "license": "CC BY 2.0",
-    "author": "Dimitris Kamaras from Athens, Greece"
+    "file": "signoria.jpg",
+    "source": "用户提供 · 领主广场",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "ponte-vecchio": {
     "file": "Ponte Vecchio - 54151224109.jpg",
@@ -180,10 +186,10 @@
     "author": "Felix König"
   },
   "pantheon": {
-    "file": "Pantheon (Rome) - Interior 05.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Pantheon_(Rome)_-_Interior_05.jpg",
-    "license": "CC BY-SA 4.0",
-    "author": "John Samuel"
+    "file": "pantheon.jpg",
+    "source": "用户提供 · 圣依纳爵堂穹顶壁画",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "trevi": {
     "file": "Fontana di Trevi Rome 04 2016 6772.jpg",
@@ -192,16 +198,16 @@
     "author": "Mariordo (Mario Roberto Durán Ortiz)"
   },
   "st-peters": {
-    "file": "Interior of St. Peter's Basilica 3.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Interior_of_St._Peter%27s_Basilica_3.jpg",
-    "license": "CC BY-SA 3.0",
-    "author": "Wknight94"
+    "file": "st-peters.jpg",
+    "source": "用户提供 · 圣彼得大教堂内部",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "st-peters-square": {
-    "file": "Crowds in St. Peter's Square.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Crowds_in_St._Peter%27s_Square.jpg",
-    "license": "CC0",
-    "author": "Mx. Granger"
+    "file": "st-peters-square.jpg",
+    "source": "用户提供 · 圣彼得广场俯瞰",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "sant-angelo": {
     "file": "0 Pont et château Sant'Angelo - Rome (1).JPG",
