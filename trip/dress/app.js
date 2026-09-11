@@ -83,6 +83,8 @@ function save() {
 /* --------------------------------------------------------------- state */
 let S = null;          // 见 defaultState()
 let sel = null;        // 当前选中的图层 id
+let lastCat = null;    // 最近导过东西的类别，粘贴时默认进这里
+let pasteTarget = null;// 弹窗开着时，粘贴的图片先交给弹窗
 const IMG = (key) => `../assets/img/${key}.jpg`;
 
 function defaultState() {
@@ -130,6 +132,7 @@ const curSpot = () => {
 const spotKey = () => `${S.curDay}:${S.curSpot}`;
 const layersOf = (key) => (S.layers[key] ||= []);
 const itemById = (id) => S.items.find((i) => i.id === id);
+const catOf = (id) => S.cats.find((c) => c.id === id);
 const layerSrc = (L) => {
   if (L.itemId) {
     const it = itemById(L.itemId);
@@ -545,6 +548,7 @@ function renderWardrobe() {
   S.cats.forEach((cat) => {
     const wrap = document.createElement('div');
     wrap.className = 'cat';
+    wrap.dataset.cat = cat.id;
     wrap.innerHTML = `<div class="cat-head"><span>${esc(cat.emoji || '🧺')}</span><span>${esc(cat.name)}</span>
       ${cat.fixed ? '' : '<button class="cat-del" type="button">删类别</button>'}</div>`;
 
@@ -608,23 +612,34 @@ function renderWardrobe() {
   });
 }
 
+function addItem(src, name, catId) {
+  const it = {
+    id: uid(),
+    cat: catId,
+    name: (name || '新单品').replace(/\.[a-z0-9]+$/i, '').slice(0, 16) || '新单品',
+    src, cut: null, useCut: false,
+  };
+  S.items.push(it);
+  lastCat = catId;
+  return it;
+}
+
+/* 选文件、拖进来、粘贴，三条路最后都走这里 */
+async function addItemsFromFiles(files, catId, name) {
+  const imgs = [...files].filter((f) => /^image\//.test(f.type));
+  if (!imgs.length) { toast('没找到图片'); return []; }
+  const made = [];
+  for (const f of imgs) made.push(addItem(await fileToSrc(f, 1200), name || f.name, catId));
+  const last = made[made.length - 1];
+  if (last && curDay() && !curDay().look.includes(last.id)) curDay().look.push(last.id);
+  save(); renderWardrobe(); renderDayLook();
+  return made;
+}
+
 function importPieces(catId) {
   pickFiles(true, async (files) => {
-    let last = null;
-    for (const f of files) {
-      const src = await fileToSrc(f, 1200);
-      const it = {
-        id: uid(),
-        cat: catId,
-        name: f.name.replace(/\.[a-z0-9]+$/i, '').slice(0, 16) || '新单品',
-        src, cut: null, useCut: false,
-      };
-      S.items.push(it);
-      last = it;
-    }
-    if (last && curDay() && !curDay().look.includes(last.id)) curDay().look.push(last.id);
-    save(); renderWardrobe(); renderDayLook();
-    toast('导好了，拖到左边照片上试试');
+    const made = await addItemsFromFiles(files, catId);
+    if (made.length) toast('导好了，拖到左边照片上试试');
   });
 }
 
@@ -776,6 +791,46 @@ function dropItemOnStage(it, at) {
   save(); renderStage(); renderRail(); renderDayStrip(); renderWardrobe(); renderDayLook();
 }
 
+/* ---------------------------------------------- 粘贴导入（⌘/Ctrl + V） */
+document.addEventListener('paste', async (e) => {
+  const files = [...(e.clipboardData?.files || [])].filter((f) => /^image\//.test(f.type));
+  if (!files.length) return;
+  e.preventDefault();
+  if (pasteTarget) { pasteTarget(files); return; }
+  const cat = catOf(lastCat) || S.cats[0];
+  const made = await addItemsFromFiles(files, cat.id);
+  if (made.length) toast(`粘贴了 ${made.length} 张进「${cat.name}」`);
+});
+
+/* -------------------------------------------- 图片直接拖进衣橱就导入 */
+const hasFiles = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
+const wdPanel = $('.wardrobe');
+
+wdPanel.addEventListener('dragover', (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  const zone = e.target.closest('.cat') || wdPanel;
+  if (!zone.classList.contains('drop-on')) {
+    $$('.drop-on', wdPanel).forEach((n) => n.classList.remove('drop-on'));
+    wdPanel.classList.remove('drop-on');
+    zone.classList.add('drop-on');
+  }
+});
+wdPanel.addEventListener('dragleave', (e) => {
+  if (e.relatedTarget && wdPanel.contains(e.relatedTarget)) return;
+  wdPanel.classList.remove('drop-on');
+  $$('.cat.drop-on', wdPanel).forEach((n) => n.classList.remove('drop-on'));
+});
+wdPanel.addEventListener('drop', async (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  const catId = e.target.closest('.cat')?.dataset.cat || lastCat || S.cats[0].id;
+  wdPanel.classList.remove('drop-on');
+  $$('.cat.drop-on', wdPanel).forEach((n) => n.classList.remove('drop-on'));
+  const made = await addItemsFromFiles(e.dataTransfer.files, catId);
+  if (made.length) toast(`收进「${catOf(catId).name}」了`);
+});
+
 /* 从桌面直接拖图片文件进来 */
 ['dragover', 'drop'].forEach((type) => {
   $('#stage').addEventListener(type, async (e) => {
@@ -786,8 +841,7 @@ function dropItemOnStage(it, at) {
     if (!files.length) return;
     const box = $('#stage').getBoundingClientRect();
     const src = await fileToSrc(files[0], 1200);
-    const it = { id: uid(), cat: S.cats[0].id, name: files[0].name.slice(0, 14) || '新单品', src, cut: null, useCut: false };
-    S.items.push(it);
+    const it = addItem(src, files[0].name, lastCat || S.cats[0].id);
     dropItemOnStage(it, {
       x: clamp((e.clientX - box.left) / box.width, 0.05, 0.95),
       y: clamp((e.clientY - box.top) / box.height, 0.05, 0.95),
@@ -875,13 +929,20 @@ async function exportPNG() {
 /* =====================================================================
    弹窗：导入行程 / 加类别
    ===================================================================== */
+let closeModal = () => {};
+
 function openModal(html, wire) {
   const m = $('#modal');
   $('#modal-card').innerHTML = html;
   m.hidden = false;
-  const close = () => { m.hidden = true; $('#modal-card').innerHTML = ''; };
-  m.onclick = (e) => { if (e.target === m) close(); };
-  wire?.(close);
+  closeModal = () => {
+    m.hidden = true;
+    $('#modal-card').innerHTML = '';
+    pasteTarget = null;
+    closeModal = () => {};
+  };
+  m.onclick = (e) => { if (e.target === m) closeModal(); };
+  wire?.(closeModal);
 }
 
 const SAMPLE_TEXT = `9.25 周四 巴黎 落地即开卷
@@ -1017,33 +1078,115 @@ function parseTextTrip(raw) {
 const CAT_PRESETS = ['👠 鞋子', '💇‍♀️ 发型', '👜 包包', '🧢 帽子', '💍 首饰', '🕶 墨镜',
   '🧥 外套', '👙 泳衣', '🧣 围巾', '👖 下装'];
 
-function openAddCat() {
+function splitEmoji(label) {
+  const m = label.trim().match(/^(\p{Extended_Pictographic}[\u200d\p{Extended_Pictographic}\ufe0f]*)?\s*(.*)$/u);
+  return { emoji: m?.[1] || '🧺', name: (m?.[2] || label).trim() };
+}
+
+function openAddPiece(presetCat) {
+  const staged = [];                                   // 待加入的图片
+  let pickedCat = presetCat || lastCat || S.cats[0]?.id;
+  let newCat = null;                                   // 现场新建的类别名
+
+  const fresh = CAT_PRESETS.filter((p) => !S.cats.some((c) => splitEmoji(p).name === c.name));
+
   openModal(`
-    <h3>加一个类别</h3>
-    <p class="m-note">想单独管鞋子、发型还是配饰，挑一个或者自己写一个。</p>
-    <div class="chiprow">${CAT_PRESETS.map((p) => `<button type="button" data-p="${esc(p)}">${esc(p)}</button>`).join('')}</div>
-    <label for="cat-name">自己写</label>
-    <input type="text" id="cat-name" placeholder="例如：手链 / 美甲 / 香水" />
+    <h3>加单品</h3>
+    <p class="m-note">衣服、鞋子、发型、包包都算单品。图片可以拖进下面的框，也可以直接 ⌘/Ctrl + V 粘贴。</p>
+
+    <div class="dropzone" id="ap-drop" tabindex="0">
+      <span class="dz-tip">把图片拖到这里 · 点一下选文件 · 或者直接粘贴</span>
+      <div class="ap-thumbs" id="ap-thumbs"></div>
+    </div>
+
+    <label>放进哪一类</label>
+    <div class="chiprow" id="ap-cats">
+      ${S.cats.map((c) => `<button type="button" data-cat="${esc(c.id)}">${esc(c.emoji)} ${esc(c.name)}</button>`).join('')}
+      ${fresh.map((p) => `<button type="button" data-new="${esc(p)}">＋ ${esc(p)}</button>`).join('')}
+    </div>
+    <input type="text" id="ap-custom" placeholder="或者自己写一类，例如：手链 / 美甲 / 香水" />
+
+    <label for="ap-name">名字（留空就用文件名）</label>
+    <input type="text" id="ap-name" placeholder="例如：碎花吊带裙" />
+
     <div class="m-actions">
-      <button class="btn btn-go" id="cat-ok" type="button">加上</button>
-      <button class="btn" id="cat-cancel" type="button">取消</button>
+      <button class="btn btn-go" id="ap-ok" type="button">加进衣橱</button>
+      <button class="btn" id="ap-cancel" type="button">取消</button>
     </div>
   `, (close) => {
-    const addCat = (label) => {
-      const m = label.trim().match(/^(\p{Extended_Pictographic}[\u200d\p{Extended_Pictographic}\ufe0f]*)?\s*(.*)$/u);
-      const emoji = m?.[1] || '🧺';
-      const name = (m?.[2] || label).trim();
-      if (!name) return;
-      S.cats.push({ id: uid(), name, emoji });
-      save(); renderWardrobe(); close();
+    const drop = $('#ap-drop');
+    const thumbs = $('#ap-thumbs');
+    const custom = $('#ap-custom');
+
+    const paintCats = () => {
+      $$('#ap-cats button').forEach((b) => {
+        b.classList.toggle('on', (b.dataset.cat && b.dataset.cat === pickedCat)
+          || (b.dataset.new && b.dataset.new === newCat));
+      });
     };
-    $$('.chiprow button').forEach((b) => { b.onclick = () => addCat(b.dataset.p); });
-    $('#cat-cancel').onclick = close;
-    $('#cat-ok').onclick = () => {
-      const v = $('#cat-name').value.trim();
-      if (!v) { toast('写个名字吧'); return; }
-      addCat(v);
+    const paintThumbs = () => {
+      thumbs.innerHTML = staged.map((s, i) =>
+        `<img src="${esc(s.src)}" alt="${esc(s.name)}" title="${esc(s.name)}" data-i="${i}" />`).join('');
+      $('.dz-tip', drop).textContent = staged.length
+        ? `已经放了 ${staged.length} 张，点缩略图可以去掉`
+        : '把图片拖到这里 · 点一下选文件 · 或者直接粘贴';
+      $$('img', thumbs).forEach((im) => {
+        im.onclick = (e) => { e.stopPropagation(); staged.splice(+im.dataset.i, 1); paintThumbs(); };
+      });
     };
+    const stage = async (files) => {
+      const imgs = [...files].filter((f) => /^image\//.test(f.type));
+      if (!imgs.length) { toast('没找到图片'); return; }
+      for (const f of imgs) staged.push({ src: await fileToSrc(f, 1200), name: f.name });
+      paintThumbs();
+    };
+
+    pasteTarget = stage;                      // 弹窗开着时，粘贴的图落到这里
+    drop.onclick = () => pickFiles(true, stage);
+    drop.ondragover = (e) => { if (hasFiles(e)) { e.preventDefault(); drop.classList.add('on'); } };
+    drop.ondragleave = () => drop.classList.remove('on');
+    drop.ondrop = (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      drop.classList.remove('on');
+      stage(e.dataTransfer.files);
+    };
+
+    $$('#ap-cats button').forEach((b) => {
+      b.onclick = () => {
+        if (b.dataset.cat) { pickedCat = b.dataset.cat; newCat = null; }
+        else { newCat = b.dataset.new; pickedCat = null; }
+        custom.value = '';
+        paintCats();
+      };
+    });
+    custom.oninput = () => {
+      newCat = custom.value.trim() || null;
+      if (newCat) pickedCat = null;
+      $$('#ap-cats button').forEach((b) => b.classList.remove('on'));
+    };
+
+    $('#ap-cancel').onclick = close;
+    $('#ap-ok').onclick = async () => {
+      if (!staged.length) { toast('先放一张图片进来'); return; }
+      let catId = pickedCat;
+      if (!catId) {
+        const label = newCat || custom.value.trim();
+        if (!label) { toast('挑一个类别'); return; }
+        const { emoji, name } = splitEmoji(label);
+        const exist = S.cats.find((c) => c.name === name);
+        catId = exist ? exist.id : (S.cats.push({ id: uid(), name, emoji }), S.cats[S.cats.length - 1].id);
+      }
+      const name = $('#ap-name').value.trim();
+      staged.forEach((s, i) => addItem(s.src, name ? (staged.length > 1 ? `${name}${i + 1}` : name) : s.name, catId));
+      const last = S.items[S.items.length - 1];
+      if (curDay() && !curDay().look.includes(last.id)) curDay().look.push(last.id);
+      save(); renderWardrobe(); renderDayLook(); close();
+      toast(`加了 ${staged.length} 件进「${catOf(catId).name}」`);
+    };
+
+    paintCats();
+    paintThumbs();
   });
 }
 
@@ -1051,7 +1194,7 @@ function openAddCat() {
    顶部按钮 & 键盘
    ===================================================================== */
 $('#btn-import').onclick = openImport;
-$('#btn-add-cat').onclick = openAddCat;
+$('#btn-add-piece').onclick = () => openAddPiece();
 $('#btn-add-spot').onclick = addSpot;
 $('#btn-empty-add').onclick = addSpot;
 $('#btn-export').onclick = exportPNG;
@@ -1072,6 +1215,7 @@ $('#btn-reset').onclick = async () => {
 };
 
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#modal').hidden) { closeModal(); return; }
   if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
   if (!sel) return;
   const L = layersOf(spotKey()).find((x) => x.id === sel);

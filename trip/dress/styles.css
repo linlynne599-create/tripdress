@@ -415,6 +415,31 @@ p { margin: 0; }
   background: var(--cream-2); border: var(--bd-thin); border-radius: 999px;
 }
 .chiprow button:hover { background: var(--butter); }
+.chiprow button.on { background: var(--butter); font-weight: 700; box-shadow: var(--ink-shadow-sm); }
+
+.dropzone {
+  margin-top: 4px;
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-size: 13.5px;
+  background: var(--cream);
+  border: 2px dashed var(--ink-3);
+  border-radius: var(--wob-sm);
+}
+.dropzone:hover { background: var(--cream-2); color: var(--ink); }
+.dropzone.on { background: var(--sage-soft); border-color: var(--sage); color: var(--ink); }
+.ap-thumbs { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 11px; }
+.ap-thumbs img {
+  width: 56px; height: 66px; object-fit: contain;
+  background: var(--paper); border: var(--bd-thin); border-radius: 9px; cursor: pointer;
+}
+.ap-thumbs img:hover { outline: 2px solid var(--rose); }
+
+/* 拖图片进衣橱时的落点提示 */
+.wardrobe.drop-on { outline: 3px dashed var(--sage); outline-offset: -6px; }
+.cat.drop-on { outline: 3px dashed var(--sage); outline-offset: 4px; border-radius: var(--wob-sm); }
 
 /* ------------------------------------------------------- ghost & toast */
 .dragghost {
