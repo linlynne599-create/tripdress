@@ -314,7 +314,9 @@ function buildLayer(L) {
   const im = document.createElement('img');
   im.src = layerSrc(L);
   im.alt = '';
+  im.draggable = false;
   el.appendChild(im);
+  el.addEventListener('dragstart', (e) => e.preventDefault());
 
   if (L.id === sel) {
     el.appendChild(handle('h-del', '✕', (e) => {
@@ -711,6 +713,10 @@ function renderDayLook() {
    把单品拖到照片上（鼠标 + 触屏都走 pointer 事件）
    ===================================================================== */
 function wirePieceDrag(el, it, onTap) {
+  // 不拦的话浏览器会用自己的「拖图片」接管，我们的拖拽就被 pointercancel 掐断
+  el.addEventListener('dragstart', (e) => e.preventDefault());
+  $$('img', el).forEach((im) => { im.draggable = false; });
+
   el.addEventListener('pointerdown', (e) => {
     if (e.target.closest('button')) return;
     const startX = e.clientX, startY = e.clientY;

@@ -62,6 +62,13 @@ body {
 [hidden] { display: none !important; }
 
 img { max-width: 100%; display: block; }
+
+/* 图片默认可以被浏览器自己拖走，那会打断我们自己的拖拽，这里全部关掉 */
+.piece img, .dl-item img, .spot-thumb, .stage-bg, .layer img, .dragghost, .ap-thumbs img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.piece, .dl-item, .spot, .layer { user-select: none; }
 h2, h3 { margin: 0; font-weight: 700; }
 p { margin: 0; }
 
