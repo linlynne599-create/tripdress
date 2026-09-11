@@ -99,7 +99,7 @@ let lastCat = null;    // 最近导过东西的类别，粘贴时默认进这里
 let pasteTarget = null;// 弹窗开着时，粘贴的图片先交给弹窗
 const IMG = (key) => `../assets/img/${key}.jpg`;
 /** trip-data.js 有改动时 +1，穿搭台会自动同步景点（保留衣橱） */
-const TRIP_DATA_REV = 5;
+const TRIP_DATA_REV = 6;
 
 function reloadTripScript() {
   return new Promise((resolve, reject) => {
