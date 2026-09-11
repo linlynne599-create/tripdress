@@ -129,7 +129,6 @@ function defaultState() {
       spots.push({ id: uid(), title, time: time || '', base: IMG(key), custom: null, cleared: false });
     };
     (d.items || []).forEach((it) => add(it.title, it.time, it.img));
-    add(`${d.city} · ${d.theme}`, '当日主图', d.img);
     return {
       id: 'd' + d.n,
       label: 'Day ' + d.n,
@@ -2155,7 +2154,12 @@ function refreshDaysFromTrip(keepWardrobe) {
   }
 
   S.days.forEach((d) => {
-    d.spots = (d.spots || []).filter((s) => s.title !== '包车到米兰中央车站');
+    const drop = [];
+    d.spots = (d.spots || []).filter((s) => {
+      if (s.time === '当日主图') { drop.push(s.id); return false; }
+      return s.title !== '包车到米兰中央车站';
+    });
+    drop.forEach((spotId) => { delete S.layers[`${d.id}:${spotId}`]; });
     d.spots.forEach((s) => {
       if (s.title === '打车前往梵蒂冈圣彼得广场') s.title = '梵蒂冈圣彼得广场';
       if (s.title === '退房寄行李，打车去真理之口') s.title = '真理之口';
