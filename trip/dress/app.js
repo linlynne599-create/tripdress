@@ -372,10 +372,6 @@ function buildLayer(L) {
   el.addEventListener('dragstart', (e) => e.preventDefault());
 
   if (L.id === sel) {
-    el.appendChild(handle('h-del', '✕', (e) => {
-      e.stopPropagation();
-      removeLayer(L.id);
-    }));
     el.appendChild(handle('h-scale', '↘'));
     el.appendChild(handle('h-rotate', '↻'));
   }
@@ -414,11 +410,7 @@ function renderLayerBar() {
   bar.innerHTML = `
     <span class="lb-name">${esc(it?.name || '图层')}</span>
     <span class="lb-group">大小<input type="range" id="lb-size" min="6" max="130" value="${Math.round(L.w * 100)}" /></span>
-    <span class="lb-group">透明<input type="range" id="lb-op" min="20" max="100" value="${Math.round(L.op * 100)}" /></span>
     <span class="lb-group">角度<input type="range" id="lb-rot" min="-180" max="180" value="${Math.round(L.rot)}" /></span>
-    <button class="btn btn-sm" id="lb-flip">镜像</button>
-    <button class="btn btn-sm" id="lb-top">置顶</button>
-    <button class="btn btn-sm btn-danger" id="lb-del">删掉</button>
   `;
 
   const live = (id, fn) => {
@@ -427,17 +419,7 @@ function renderLayerBar() {
     input.onchange = save;
   };
   live('lb-size', (v) => { L.w = v / 100; });
-  live('lb-op', (v) => { L.op = v / 100; });
   live('lb-rot', (v) => { L.rot = v; });
-
-  $('#lb-flip', bar).onclick = () => { L.flip = !L.flip; save(); patchLayer(L); };
-  $('#lb-top', bar).onclick = () => {
-    const list2 = layersOf(spotKey());
-    const i = list2.indexOf(L);
-    list2.splice(i, 1); list2.push(L);
-    save(); renderStage();
-  };
-  $('#lb-del', bar).onclick = () => removeLayer(L.id);
 }
 
 function patchLayer(L) {
