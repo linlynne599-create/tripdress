@@ -1464,6 +1464,133 @@ function openAddPiece(presetCat) {
 }
 
 /* =====================================================================
+   去人物（粗）：BodyPix 识别人形 + 从边缘向内填色，不追求精细
+   第一次会下载约 5MB 模型，之后浏览器缓存。
+   ===================================================================== */
+const BODYPIX_LIB = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/+esm';
+let bodyPixNet = null;
+
+function dilatePersonMask(mask, w, h, radius) {
+  const out = new Uint8Array(mask.length);
+  const r2 = radius * radius;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!mask[y * w + x]) continue;
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          if (dx * dx + dy * dy > r2) continue;
+          const nx = x + dx; const ny = y + dy;
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h) out[ny * w + nx] = 1;
+        }
+      }
+    }
+  }
+  mask.set(out);
+}
+
+function inpaintFromEdges(data, mask, w, h, maxIter) {
+  const todo = new Uint8Array(mask);
+  for (let iter = 0; iter < maxIter; iter++) {
+    let changed = false;
+    const next = new Uint8Array(todo);
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const i = y * w + x;
+        if (!todo[i]) continue;
+        let r = 0; let g = 0; let b = 0; let n = 0;
+        for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+          const j = (y + dy) * w + (x + dx);
+          if (!todo[j]) {
+            r += data[j * 4]; g += data[j * 4 + 1]; b += data[j * 4 + 2];
+            n++;
+          }
+        }
+        if (n) {
+          data[i * 4] = r / n; data[i * 4 + 1] = g / n; data[i * 4 + 2] = b / n;
+          next[i] = 0;
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+    todo.set(next);
+  }
+}
+
+async function removePeopleFromImage(src, onStep) {
+  onStep?.('正在加载人物识别模型…');
+  const bp = await import(BODYPIX_LIB);
+  if (!bodyPixNet) {
+    bodyPixNet = await bp.load({
+      architecture: 'MobileNetV1',
+      outputStride: 16,
+      multiplier: 0.75,
+      quantBytes: 2,
+    });
+  }
+  const im = await loadImg(src, true);
+  const maxW = 900;
+  const scale = Math.min(1, maxW / im.naturalWidth);
+  const w = Math.max(1, Math.round(im.naturalWidth * scale));
+  const h = Math.max(1, Math.round(im.naturalHeight * scale));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(im, 0, 0, w, h);
+
+  onStep?.('正在识别画面里的人…');
+  const segCfg = { internalResolution: 'medium', segmentationThreshold: 0.45, maxDetections: 8 };
+  const mask = new Uint8Array(w * h);
+  if (typeof bodyPixNet.segmentMultiPerson === 'function') {
+    const people = await bodyPixNet.segmentMultiPerson(c, segCfg);
+    people.forEach((seg) => {
+      seg.data.forEach((v, i) => { if (v) mask[i] = 1; });
+    });
+  }
+  if (!mask.some((v) => v)) {
+    const one = await bodyPixNet.segmentPerson(c, segCfg);
+    one.data.forEach((v, i) => { if (v) mask[i] = 1; });
+  }
+  if (!mask.some((v) => v)) throw new Error('no person');
+
+  dilatePersonMask(mask, w, h, 10);
+  onStep?.('正在填背景（粗略）…');
+  const imgData = ctx.getImageData(0, 0, w, h);
+  inpaintFromEdges(imgData.data, mask, w, h, 140);
+  ctx.putImageData(imgData, 0, 0);
+
+  if (scale >= 1) return c.toDataURL('image/jpeg', 0.9);
+  const full = document.createElement('canvas');
+  full.width = im.naturalWidth;
+  full.height = im.naturalHeight;
+  full.getContext('2d').drawImage(c, 0, 0, full.width, full.height);
+  return full.toDataURL('image/jpeg', 0.9);
+}
+
+async function despersonSpotPhoto() {
+  const sp = curSpot();
+  const src = sp && spotSrc(sp);
+  if (!sp || !src) { toast('先选一张有照片的景点'); return; }
+  if (!confirm(
+    '【去人物 · 粗略】\n'
+    + '用浏览器里的小模型认出人体，再把那块区域用周围颜色糊满。\n'
+    + '第一次约 5MB 下载；效果不精细，远处小人可能还在。\n\n'
+    + '确定继续？'
+  )) return;
+  const tip = stickyToast('准备中…');
+  try {
+    const out = await removePeopleFromImage(src, tip.set);
+    sp.custom = out;
+    sp.cleared = false;
+    save(); renderStage(); renderRail();
+    tip.done('好了，可继续贴穿搭 · 不满意点「恢复原图」');
+  } catch (e) {
+    console.warn('desperson', e);
+    tip.done('去人物没成功（可能没认到人，或模型加载失败）');
+  }
+}
+
+/* =====================================================================
    顶部按钮 & 键盘
    ===================================================================== */
 $('#btn-import').onclick = openImport;
@@ -1475,6 +1602,7 @@ $('#btn-empty-add').onclick = () => {
 };
 $('#btn-export').onclick = exportPNG;
 $('#btn-replace-bg').onclick = () => { const sp = curSpot(); if (sp) replaceSpotPhoto(sp); };
+$('#btn-desperson').onclick = () => despersonSpotPhoto();
 $('#btn-restore-bg').onclick = () => {
   const sp = curSpot();
   if (!sp) return;
