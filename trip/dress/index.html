@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=5" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
 
@@ -31,7 +31,8 @@
 <main class="workbench">
 
   <!-- ------------------------------------------------------ 左：成片预览台 -->
-  <section class="stage-col">
+  <!-- stage-panel 必须是 workbench 的直接子元素，手机上才能吸顶吸到底 -->
+  <section class="stage-panel">
     <div class="stage-head">
       <div>
         <h2 id="stage-title">选一张景点照片</h2>
@@ -56,7 +57,9 @@
     </div>
 
     <div class="layerbar" id="layerbar" hidden></div>
+  </section>
 
+  <section class="rail-panel">
     <div class="rail">
       <div class="rail-head">
         <h3>这一天的景点照片</h3>
@@ -76,13 +79,14 @@
       <button class="btn btn-sm" id="btn-add-piece" type="button">＋ 加单品</button>
     </div>
     <p class="wd-note">默认只有「衣服 / 裙子」，加单品时可以顺手新建鞋子、发型、包这些类别。
-      图片直接拖进这块地方，或者 ⌘/Ctrl + V 粘贴，都能导入。</p>
+      图片直接拖进这块地方，或者 ⌘/Ctrl + V 粘贴，都能导入。<br />
+      <b>点一下单品就贴到当前那张照片上</b>；电脑上按住拖，可以放到指定位置。</p>
     <div class="wd-cats" id="wd-cats"></div>
 
     <div class="wd-head wd-head-2">
       <h3>Day 穿搭</h3>
     </div>
-    <p class="wd-note">给这一天挑好的单品会记在这里，换天不会丢。</p>
+    <p class="wd-note">贴到照片上的单品会自动记在这一天，换天不会丢。点这里的单品可以再贴一次。</p>
     <div class="daylook" id="daylook"></div>
   </aside>
 
@@ -101,6 +105,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

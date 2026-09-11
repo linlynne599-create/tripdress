@@ -348,9 +348,11 @@ function renderLayerBar() {
   const L = list.find((x) => x.id === sel);
   if (!L) {
     bar.hidden = true;
-    $('#stage-hint').textContent = list.length
-      ? '点一下画面里的单品可以调整它 · 也可以继续从右边拖新的进来'
-      : '把右边衣橱里的单品拖进来 · 也可以直接把电脑里的图片拖到这张照片上';
+    $('#stage-hint').textContent = isNarrow()
+      ? '点下面衣橱里的单品就会贴到这张照片上 · 贴上去后按住就能挪、拖角上的圈能缩放'
+      : (list.length
+        ? '点一下画面里的单品可以调整它 · 也可以继续从右边拖新的进来'
+        : '把右边衣橱里的单品拖进来 · 也可以直接把电脑里的图片拖到这张照片上');
     return;
   }
   bar.hidden = false;
@@ -610,7 +612,7 @@ function renderWardrobe() {
         });
         save(); renderAll();
       };
-      wirePieceDrag(el, it, () => toggleInDay(it));
+      wirePieceDrag(el, it, () => placeOnPhoto(it));
       grid.appendChild(el);
     });
 
@@ -695,7 +697,7 @@ function renderDayLook() {
   const d = curDay();
   box.innerHTML = '';
   if (!d || !d.look.length) {
-    box.innerHTML = '<p class="empty">点衣橱里的单品，就会挑进这一天。</p>';
+    box.innerHTML = '<p class="empty">这一天还没用过单品。点上面衣橱里的，就会贴到照片上。</p>';
     return;
   }
   d.look.forEach((id) => {
@@ -710,7 +712,7 @@ function renderDayLook() {
       d.look = d.look.filter((x) => x !== id);
       save(); renderWardrobe(); renderDayLook();
     };
-    wirePieceDrag(el, it, () => dropItemOnStage(it, { x: 0.5, y: 0.55 }));
+    wirePieceDrag(el, it, () => placeOnPhoto(it));
     box.appendChild(el);
   });
 }
@@ -728,8 +730,15 @@ function wirePieceDrag(el, it, onTap) {
     const startX = e.clientX, startY = e.clientY;
     const touch = e.pointerType === 'touch';
     let dragging = false;
-    let holdTimer = touch ? setTimeout(() => { dragging = true; showGhost(it, startX, startY); }, 240) : null;
     const ghost = $('#dragghost');
+
+    // 触屏：拖起来之后要一直吃掉 touchmove，否则浏览器会把手势当成翻页
+    const eatScroll = (ev) => { if (dragging) ev.preventDefault(); };
+    if (touch) document.addEventListener('touchmove', eatScroll, { passive: false });
+
+    let holdTimer = touch
+      ? setTimeout(() => { dragging = true; showGhost(it, startX, startY); }, 220)
+      : null;
 
     const move = (ev) => {
       if (!dragging) {
@@ -743,24 +752,28 @@ function wirePieceDrag(el, it, onTap) {
       ghost.style.top = ev.clientY + 'px';
       hoverTargets(ev.clientX, ev.clientY);
     };
-    const up = (ev) => {
+    const unbind = () => {
       clearTimeout(holdTimer);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', cancel);
+      document.removeEventListener('touchmove', eatScroll);
+    };
+    const up = (ev) => {
+      unbind();
       if (!dragging) { onTap?.(); return; }
       ghost.hidden = true;
       clearHover();
       dropAt(it, ev.clientX, ev.clientY);
     };
     const cancel = () => {
-      clearTimeout(holdTimer);
+      // 手势被系统收走（比如页面开始滚动）：当成点一下处理，别让用户白按
+      const wasDragging = dragging;
+      unbind();
       dragging = false;
       ghost.hidden = true;
       clearHover();
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      window.removeEventListener('pointercancel', cancel);
+      if (wasDragging) placeOnPhoto(it);
     };
     window.addEventListener('pointermove', move, { passive: false });
     window.addEventListener('pointerup', up);
@@ -804,6 +817,32 @@ function dropAt(it, x, y) {
     S.curSpot = spotCard.dataset.spot;
     renderStage(); renderRail();
     dropItemOnStage(it, { x: 0.5, y: 0.55 });
+    return;
+  }
+  toast('要放到上面那张照片上才算贴好');
+}
+
+const isNarrow = () => window.innerWidth <= 940;
+const stageVisible = () => {
+  const r = $('#stage').getBoundingClientRect();
+  return r.bottom > 60 && r.top < window.innerHeight - 40;
+};
+
+/* 吸顶的照片要正好贴在日期条下面，高度按实际渲染出来的算 */
+function syncStickyTop() {
+  const h = $('.topbar').offsetHeight + $('#daystrip').offsetHeight;
+  document.documentElement.style.setProperty('--sticky-top', h + 'px');
+}
+window.addEventListener('resize', syncStickyTop);
+
+/* 手机上衣橱在照片下面，点一下直接贴上去，再把照片滚到眼前 */
+function placeOnPhoto(it) {
+  if (!curSpot()) { toast('这一天还没有照片'); return; }
+  dropItemOnStage(it, { x: 0.5, y: 0.55 });
+  if (isNarrow()) {
+    // 照片被滚出去了才拉回来；smooth 在部分内置浏览器里会被忽略，所以用瞬时滚动
+    if (!stageVisible()) $('.stage-wrap').scrollIntoView({ block: 'center' });
+    toast('贴上去了，按住就能挪位置');
   }
 }
 
@@ -1322,6 +1361,7 @@ document.addEventListener('keydown', (e) => {
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
   if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
   renderAll();
+  syncStickyTop();
 })();
 
 })();

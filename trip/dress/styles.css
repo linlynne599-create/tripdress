@@ -68,7 +68,11 @@ img { max-width: 100%; display: block; }
   -webkit-user-drag: none;
   user-select: none;
 }
-.piece, .dl-item, .spot, .layer { user-select: none; }
+/* iOS 长按图片会弹「存储图片」菜单，把长按拖拽打断 */
+.piece, .dl-item, .spot, .layer {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 h2, h3 { margin: 0; font-weight: 700; }
 p { margin: 0; }
 
@@ -149,15 +153,18 @@ p { margin: 0; }
 .workbench {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;
-  gap: 20px;
+  gap: 16px 20px;
   max-width: 1400px;
   margin: 0 auto;
   padding: 18px 16px 60px;
   align-items: start;
 }
+.stage-panel { grid-column: 1; grid-row: 1; }
+.rail-panel  { grid-column: 1; grid-row: 2; }
+.wardrobe    { grid-column: 2; grid-row: 1 / span 2; }
 
 /* --------------------------------------------------------------- stage */
-.stage-col { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.stage-panel, .rail-panel { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 
 .stage-head { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
 .stage-head h2 { font-size: 20px; }
@@ -467,11 +474,29 @@ p { margin: 0; }
 
 /* -------------------------------------------------------------- mobile */
 @media (max-width: 940px) {
-  .workbench { grid-template-columns: 1fr; padding: 14px 12px 50px; }
+  .workbench { grid-template-columns: 1fr; padding: 14px 12px 50px; gap: 14px; }
+  .stage-panel, .rail-panel, .wardrobe { grid-column: 1; grid-row: auto; }
   .wardrobe { position: static; max-height: none; }
   .brand-sub { display: none; }
-  .stage { --maxh: 52vh; }
   .top-actions .btn-link { display: none; }
+
+  /* 手机上照片吸在日期条下面：往下翻衣橱时它一直看得见，
+     不然照片和衣橱永远不会同屏，点了也不知道效果 */
+  .stage-panel {
+    position: sticky;
+    top: var(--sticky-top, 108px);
+    z-index: 6;
+    gap: 8px;
+    margin: 0 -12px;
+    padding: 8px 12px;
+    background: var(--cream);
+    box-shadow: 0 10px 12px -10px rgba(77, 58, 45, .3);
+  }
+  .stage { --maxh: 38vh; }
+  .stage-head h2 { font-size: 16px; }
+  .stage-sub { display: none; }
+  .stage-hint { display: none; }
+  .layerbar { padding: 6px 8px; gap: 6px; }
 }
 @media (max-width: 560px) {
   body { font-size: 15px; }
