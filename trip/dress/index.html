@@ -6,7 +6,7 @@
 <title>欧洲蜜月 OOTD · 把衣服搭到景点照片上</title>
 <meta name="description" content="欧洲蜜月行程 OOTD：把衣橱单品拖到景点照片上预览成片，支持裁剪与抠图。" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=38" />
+<link rel="stylesheet" href="styles.css?v=39" />
 </head>
 <body>
 
@@ -58,6 +58,13 @@
   </section>
 
   <section class="rail-panel">
+    <div class="outfit-rail" id="outfit-rail" hidden>
+      <div class="rail-head">
+        <h3>每日穿搭建议</h3>
+        <span class="outfit-rail-hint">左右滑查看更多</span>
+      </div>
+      <div class="outfit-tip-track" id="outfit-tip"></div>
+    </div>
     <div class="rail">
       <div class="rail-head">
         <h3>景点</h3>
@@ -65,21 +72,16 @@
       </div>
       <div class="rail-track" id="spot-rail"></div>
     </div>
-
   </section>
 
   <!-- ---------------------------------------------------------- 右：衣橱 -->
   <aside class="wardrobe">
     <div class="wd-head">
-      <h3>每日穿搭建议</h3>
-    </div>
-    <div class="outfit-tip" id="outfit-tip" hidden></div>
-    <div class="wd-head wd-head-2">
       <h3>今日穿搭</h3>
     </div>
     <div class="daylook" id="day-summary"></div>
 
-    <div class="wd-head wd-head-3">
+    <div class="wd-head wd-head-2">
       <h3>我的衣橱</h3>
       <button class="btn btn-sm" id="btn-add-piece" type="button">加单品</button>
     </div>
@@ -102,6 +104,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js?v=6"></script>
-<script src="app.js?v=38"></script>
+<script src="app.js?v=39"></script>
 </body>
 </html>

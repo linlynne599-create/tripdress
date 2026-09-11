@@ -1230,26 +1230,29 @@ function copyOutfitToAllDaySpots() {
 
 /* ------------------------------------------------------ 每日穿搭建议 */
 function renderOutfitTip() {
+  const rail = $('#outfit-rail');
   const box = $('#outfit-tip');
   if (!box) return;
   const o = outfitForDay(curDay());
   if (!o) {
-    box.hidden = true;
+    if (rail) rail.hidden = true;
     box.innerHTML = '';
     return;
   }
-  box.hidden = false;
-  box.removeAttribute('hidden');
-  const lines = (o.lines || []).map((line) =>
-    `<li${line.startsWith('⛪') ? ' class="is-church"' : ''}>${esc(line)}</li>`
-  ).join('');
-  box.innerHTML = `
-    <div class="outfit-tip-head">
-      <span class="outfit-tip-icon" aria-hidden="true">👗</span>
-      <h4>每日穿搭建议</h4>
-      ${o.summary ? `<p class="outfit-tip-summary">${esc(o.summary)}</p>` : ''}
-    </div>
-    ${lines ? `<ul class="outfit-tip-list">${lines}</ul>` : ''}`;
+  if (rail) {
+    rail.hidden = false;
+    rail.removeAttribute('hidden');
+  }
+  const cards = [];
+  if (o.summary) {
+    cards.push(`<article class="outfit-tip-card is-summary"><p>${esc(o.summary)}</p></article>`);
+  }
+  (o.lines || []).forEach((line) => {
+    const cls = line.startsWith('⛪') ? ' is-church' : '';
+    cards.push(`<article class="outfit-tip-card${cls}"><p>${esc(line)}</p></article>`);
+  });
+  box.innerHTML = cards.join('');
+  box.scrollLeft = 0;
 }
 
 /* ------------------------------------------------------ 今日穿搭汇总 */
