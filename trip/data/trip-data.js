@@ -45,7 +45,7 @@ window.TRIP = (function () {
   // lat/lon drive the schematic route map.
   const cities = [
     { id: 'xiamen', name: '厦门', country: '中国', lat: 24.48, lon: 118.09, img: 'xiamen', kind: 'origin' },
-    { id: 'singapore', name: '新加坡', country: '新加坡', lat: 1.35, lon: 103.82, img: 'singapore', kind: 'transit' },
+    { id: 'singapore', name: '新加坡', country: '新加坡', lat: 1.35, lon: 103.82, img: 'singapore-day', kind: 'transit' },
     { id: 'doha', name: '多哈', country: '卡塔尔', lat: 25.29, lon: 51.53, img: 'doha', kind: 'transit' },
     { id: 'paris', name: '巴黎', country: '法国', lat: 48.86, lon: 2.35, img: 'paris', kind: 'stay', nights: 3 },
     { id: 'como', name: '科莫湖', country: '意大利', lat: 46.01, lon: 9.26, img: 'como', kind: 'daytrip' },
@@ -83,7 +83,7 @@ window.TRIP = (function () {
       city: '新加坡',
       cityId: 'singapore',
       theme: '中转一日游',
-      img: 'singapore',
+      img: 'singapore-day',
       outfit: {
         summary: '新加坡闷热 · 透气 + 防雨',
         lines: ['速干短袖/薄裙，雨伞放手边', '商场/地铁空调猛，薄外套或衬衫备一件'],
@@ -117,8 +117,8 @@ window.TRIP = (function () {
             ],
           },
         },
-        { time: '16:40', title: '回到樟宜机场', note: '16:40 要到机场' },
-        { time: '19:40–22:00', title: '新加坡樟宜 T1 → 多哈哈马德', kind: 'flight', status: 'todo', img: 'doha' },
+        { time: '16:40', title: '回到樟宜机场', note: '16:40 要到机场', img: 'singapore' },
+        { time: '19:40–22:00', title: '新加坡樟宜 T1 → 多哈哈马德', kind: 'flight', status: 'todo', img: 'singapore' },
       ],
     },
     {
