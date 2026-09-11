@@ -1026,7 +1026,7 @@ function renderDaySummary() {
   const items = itemsOnDay(curDay());
   box.innerHTML = '';
   if (!items.length) {
-    box.innerHTML = '<p class="empty">今天还没有单品贴到景点照片上。</p>';
+    box.innerHTML = '<p class="empty">今日还没有单品</p>';
     return;
   }
   items.forEach((it) => {
