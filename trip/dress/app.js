@@ -652,17 +652,22 @@ function renderStage() {
     $('#btn-empty-add').textContent = sp ? '给这个地点加张照片' : '导入一张景点照片';
     $('#stage-empty').hidden = false;
     $('#layerbar').hidden = true;
+    requestAnimationFrame(syncChromeHeights);
     return;
   }
 
   $('#stage-empty').hidden = true;
   bg.style.visibility = 'visible';
   if (bg.getAttribute('src') !== src) bg.src = src;
-  const fit = () => stage.style.setProperty('--ar', (bg.naturalWidth / bg.naturalHeight) || 1.3333);
+  const fit = () => {
+    stage.style.setProperty('--ar', (bg.naturalWidth / bg.naturalHeight) || 1.3333);
+    requestAnimationFrame(syncChromeHeights);
+  };
   if (bg.complete && bg.naturalWidth) fit(); else bg.onload = fit;
 
   layersOf(spotKey()).forEach((L) => stage.appendChild(buildLayer(L)));
   renderLayerBar();
+  requestAnimationFrame(syncChromeHeights);
 }
 
 function buildLayer(L) {
@@ -1317,6 +1322,13 @@ function syncChromeHeights() {
   document.documentElement.style.setProperty('--daystrip-h', `${ds}px`);
   document.documentElement.style.setProperty('--daywx-h', `${wx}px`);
   document.documentElement.style.setProperty('--chrome-h', `${chrome}px`);
+
+  const stagePanel = $('.stage-panel');
+  if (stagePanel && isNarrow()) {
+    document.documentElement.style.setProperty('--stage-fixed-h', `${stagePanel.offsetHeight}px`);
+  } else {
+    document.documentElement.style.setProperty('--stage-fixed-h', '0px');
+  }
 }
 window.addEventListener('resize', syncChromeHeights);
 
@@ -1324,11 +1336,7 @@ window.addEventListener('resize', syncChromeHeights);
 function placeOnPhoto(it) {
   if (!spotSrc(curSpot())) { toast('这个地点还没有照片，先加一张'); return; }
   dropItemOnStage(it, { x: 0.5, y: 0.55 });
-  if (isNarrow()) {
-    // 照片被滚出去了才拉回来；smooth 在部分内置浏览器里会被忽略，所以用瞬时滚动
-    if (!stageVisible()) $('.stage-wrap').scrollIntoView({ block: 'center' });
-    toast('贴上去了，按住就能挪位置');
-  }
+  if (isNarrow()) toast('贴上去了，按住就能挪位置');
 }
 
 function dropItemOnStage(it, at) {

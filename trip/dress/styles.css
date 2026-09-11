@@ -192,6 +192,7 @@ p { margin: 0; }
   padding: 22px 20px 64px;
   align-items: start;
 }
+.stage-spacer { display: none; }
 .stage-panel { grid-column: 1; grid-row: 1; }
 .rail-panel  { grid-column: 1; grid-row: 2; }
 .wardrobe    { grid-column: 2; grid-row: 1 / span 2; }
@@ -613,23 +614,44 @@ p { margin: 0; }
 
 /* -------------------------------------------------------------- mobile */
 @media (max-width: 940px) {
-  .workbench { grid-template-columns: 1fr; padding: 14px 14px 50px; gap: 14px; }
-  .stage-panel, .rail-panel, .wardrobe { grid-column: 1; grid-row: auto; }
+  .workbench {
+    display: flex;
+    flex-direction: column;
+    padding: 0 14px 50px;
+    gap: 14px;
+  }
+  .stage-spacer {
+    display: block;
+    flex: none;
+    height: var(--stage-fixed-h, 260px);
+  }
+  .stage-panel, .rail-panel, .wardrobe { width: 100%; }
   .wardrobe { position: static; max-height: none; }
   .brand-sub { display: none; }
   .top-actions .btn-link { display: none; }
 
+  /* 主图 + 工具条固定；从「每日穿搭建议」起随页滚动，可被主图盖住 */
   .stage-panel {
-    gap: 8px;
-    margin: 0 -14px;
-    padding: 0 14px;
+    position: fixed;
+    top: var(--chrome-h);
+    left: 0;
+    right: 0;
+    z-index: 25;
+    gap: 6px;
+    margin: 0;
+    padding: 6px 14px 8px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 6px 16px rgba(20, 20, 20, .08);
   }
-  .stage { --maxh: 36vh; }
+  .stage { --maxh: 34vh; }
   .day-weather { padding: 6px 14px; }
   .stage-head h2 { font-size: 16px; }
   .stage-sub { display: none; }
   .stage-hint { display: none; }
   .layerbar { padding: 7px 9px; gap: 8px; }
+  .stage-head-btns { gap: 6px; }
+  .stage-head-btns .btn-sm { font-size: 11.5px; padding: 3px 8px; }
 }
 @media (max-width: 560px) {
   .topbar { padding: 0 14px; gap: 10px; }
