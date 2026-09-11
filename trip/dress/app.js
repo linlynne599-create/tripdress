@@ -137,6 +137,7 @@ function defaultState() {
       weekday: d.weekday || '',
       city: d.city,
       theme: d.theme || '',
+      outfit: copyOutfit(d.outfit),
       spots,
     };
   });
@@ -155,14 +156,46 @@ function defaultState() {
 }
 
 const curDay = () => S.days.find((d) => d.id === S.curDay) || S.days[0] || null;
-/** 当前天对应的 trip-data.js 条目（含 outfit 文案） */
-const tripDayMeta = () => {
-  const d = curDay();
+
+function copyOutfit(o) {
+  if (!o) return null;
+  const summary = o.summary || '';
+  const lines = [...(o.lines || [])];
+  if (!summary && !lines.length) return null;
+  return { summary, lines };
+}
+
+/** 从 trip-data.js 按 day.n / 日期 / 城市 对齐穿搭文案 */
+function resolveOutfitFromTrip(day) {
   const T = window.TRIP;
-  if (!d || !T?.days) return null;
-  const n = +String(d.id).replace(/^d/, '');
-  return T.days.find((x) => x.n === n) || null;
-};
+  if (!T?.days || !day) return null;
+  const id = String(day.id);
+  const m = id.match(/^d(\d+)$/);
+  if (m) {
+    const hit = T.days.find((x) => x.n === +m[1]);
+    if (hit?.outfit) return copyOutfit(hit.outfit);
+  }
+  const same = T.days.find((x) => x.date === day.date && x.city === day.city)
+    || T.days.find((x) => x.date === day.date);
+  return copyOutfit(same?.outfit);
+}
+
+function outfitForDay(day) {
+  if (!day) return null;
+  return copyOutfit(day.outfit) || resolveOutfitFromTrip(day);
+}
+
+/** 老数据里没有 outfit 字段时，从 TRIP 补进 IndexedDB */
+function ensureDayOutfits() {
+  if (!S?.days?.length) return;
+  let changed = false;
+  S.days.forEach((day) => {
+    if (copyOutfit(day.outfit)) return;
+    const o = resolveOutfitFromTrip(day);
+    if (o) { day.outfit = o; changed = true; }
+  });
+  if (changed) save();
+}
 const curSpot = () => {
   const d = curDay();
   return d ? d.spots.find((s) => s.id === S.curSpot) || d.spots[0] || null : null;
@@ -325,22 +358,6 @@ function renderDayStrip() {
 }
 
 /* ---------------------------------------------------- 主图左右滑：景点 / 跨天 */
-function updateStagePager() {
-  const el = $('#stage-pager');
-  const d = curDay();
-  const sp = curSpot();
-  if (!el || !d) { if (el) el.hidden = true; return; }
-  const spots = d.spots || [];
-  const si = sp ? spots.findIndex((s) => s.id === sp.id) : -1;
-  const spotIdx = si >= 0 ? si + 1 : (spots.length ? 1 : 0);
-  const di = S.days.findIndex((x) => x.id === d.id);
-  if (spots.length <= 1 && S.days.length <= 1) { el.hidden = true; return; }
-  el.hidden = false;
-  el.textContent = spots.length
-    ? `穿搭 ${spotIdx} / ${spots.length} · ${d.date} ${d.weekday}（第 ${di + 1}/${S.days.length} 天）`
-    : `${d.date} ${d.weekday}（第 ${di + 1}/${S.days.length} 天）`;
-}
-
 function goSpotByDelta(delta) {
   const d = curDay();
   if (!d?.spots?.length) return false;
@@ -493,7 +510,6 @@ function renderStage() {
     $('#btn-empty-add').textContent = sp ? '给这个地点加张照片' : '导入一张景点照片';
     $('#stage-empty').hidden = false;
     $('#layerbar').hidden = true;
-    updateStagePager();
     return;
   }
 
@@ -505,7 +521,6 @@ function renderStage() {
 
   layersOf(spotKey()).forEach((L) => stage.appendChild(buildLayer(L)));
   renderLayerBar();
-  updateStagePager();
 }
 
 function buildLayer(L) {
@@ -1217,13 +1232,14 @@ function copyOutfitToAllDaySpots() {
 function renderOutfitTip() {
   const box = $('#outfit-tip');
   if (!box) return;
-  const o = tripDayMeta()?.outfit;
-  if (!o || (!o.summary && !(o.lines?.length))) {
+  const o = outfitForDay(curDay());
+  if (!o) {
     box.hidden = true;
     box.innerHTML = '';
     return;
   }
   box.hidden = false;
+  box.removeAttribute('hidden');
   const lines = (o.lines || []).map((line) =>
     `<li${line.startsWith('⛪') ? ' class="is-church"' : ''}>${esc(line)}</li>`
   ).join('');
@@ -1957,6 +1973,7 @@ function refreshDaysFromTrip(keepWardrobe) {
   });
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
   if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
+  ensureDayOutfits();
   renderAll();
   syncStickyTop();
   initStageSwipe();
