@@ -6,7 +6,7 @@
 <title>旅行穿搭台 · 把衣服搭到每一天的行程上</title>
 <meta name="description" content="导入每天的行程，给每一天配上自己的衣服、鞋子和发型，再把单品拖到景点照片里预览成片效果。" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=17" />
+<link rel="stylesheet" href="styles.css?v=18" />
 </head>
 <body>
 
@@ -35,9 +35,9 @@
         <p class="stage-sub" id="stage-sub"></p>
       </div>
       <div class="stage-head-btns">
-        <button class="btn btn-sm" id="btn-replace-bg" type="button">换这张照片</button>
+        <button class="btn btn-sm" id="btn-replace-bg" type="button">换一张</button>
         <button class="btn btn-sm" id="btn-restore-bg" type="button" hidden>恢复原图</button>
-        <button class="btn btn-sm btn-go" id="btn-export" type="button">导出成片</button>
+        <button class="btn btn-sm btn-go" id="btn-export" type="button">导出</button>
       </div>
     </div>
 
@@ -59,8 +59,6 @@
     <div class="rail">
       <div class="rail-head">
         <h3>景点</h3>
-        <span class="rail-note">把自己的照片拖到某张卡片上就换掉它 · 拖到空白处是加新地点 ·
-          ✕ 只删照片，行程和搭配都留着</span>
         <button class="btn btn-sm" id="btn-add-spot" type="button">加地点</button>
       </div>
       <div class="rail-track" id="spot-rail"></div>
@@ -75,9 +73,7 @@
       <h3>我的衣橱</h3>
       <button class="btn btn-sm" id="btn-add-piece" type="button">加单品</button>
     </div>
-    <p class="wd-note">图片直接拖进这块地方，或者 ⌘/Ctrl + V 粘贴，都能导入；加单品时可以顺手新建鞋子、发型、包这些类别。<br />
-      <b>点一下单品就贴到当前那张照片上</b>；电脑上按住拖，可以放到指定位置。
-      单品右上角 ⛶ 裁剪；✂ 抠图（A 轻量 AI，首次约 50MB；取消则用白底去背）。</p>
+    <p class="wd-note">支持拖拽导入照片，可以上传多种穿搭类别，可以将衣橱照片拖入上方景点照内进行预览。裁剪：⛶　抠图：✂</p>
     <div class="wd-cats" id="wd-cats"></div>
 
     <div class="wd-head wd-head-2">
@@ -102,6 +98,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js"></script>
-<script src="app.js?v=17"></script>
+<script src="app.js?v=18"></script>
 </body>
 </html>

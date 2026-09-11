@@ -105,7 +105,7 @@ function defaultState() {
     const spots = [];
     const seen = new Set();
     const add = (title, time, key) => {
-      if (!key || seen.has(key)) return;
+      if (!key || seen.has(key) || title === '包车到米兰中央车站') return;
       seen.add(key);
       spots.push({ id: uid(), title, time: time || '', base: IMG(key), custom: null });
     };
@@ -292,7 +292,7 @@ function renderStage() {
   $('#stage-sub').textContent = d ? `${d.label} · ${d.date} ${d.weekday} · ${d.city}${sp?.time ? ' · ' + sp.time : ''}` : '';
   const src = spotSrc(sp);
   $('#btn-replace-bg').disabled = !sp;
-  $('#btn-replace-bg').textContent = src ? '换这张照片' : '加张照片';
+  $('#btn-replace-bg').textContent = src ? '换一张' : '加一张';
   $('#btn-export').disabled = !src;
   $('#btn-restore-bg').hidden = !(sp && sp.base && (sp.custom || sp.cleared));
 
@@ -1541,7 +1541,10 @@ document.addEventListener('keydown', (e) => {
   S.cats ||= [{ id: 'main', name: '衣服 / 裙子', emoji: '👗', fixed: true }];
   S.items ||= [];
   S.layers ||= {};
-  S.days.forEach((d) => { d.look ||= []; });
+  S.days.forEach((d) => {
+    d.look ||= [];
+    d.spots = (d.spots || []).filter((s) => s.title !== '包车到米兰中央车站');
+  });
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
   if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
   renderAll();

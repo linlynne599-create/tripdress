@@ -93,6 +93,7 @@ window.TRIP = (function () {
           time: '全天',
           title: '新加坡一日游',
           kind: 'sight',
+          img: 'singapore-day',
           food: {
             title: '这一天的吃喝清单',
             groups: [
@@ -235,7 +236,7 @@ window.TRIP = (function () {
           note: '04:30 酒店上车 · 07:30 起飞 TO3940',
         },
         { time: '07:30–09:05', title: '巴黎奥利 T3 → 米兰马尔彭萨 T1', kind: 'flight', status: 'booked', note: '航班 TO3940' },
-        { time: '09:30–10:25', title: '包车到米兰中央车站', kind: 'transfer', note: '行李直接寄存在中央车站（如 KiPoint）', img: 'milan' },
+        { time: '09:30–10:25', title: '包车到米兰中央车站', kind: 'transfer', note: '行李直接寄存在中央车站（如 KiPoint）' },
         { time: '11:20–12:24', title: '米兰中央车站 → 瓦伦纳', kind: 'train', status: 'booked' },
         { time: '12:30–14:00', title: '瓦伦纳小镇', kind: 'sight', note: 'Villa Cipressi 10 欧/人 · Villa Monastero 13 欧/人', img: 'varenna' },
         { time: '14:30–14:45', title: '瓦伦纳 → 贝拉焦', kind: 'transfer', note: '轮渡 15 分钟，提前 20 分钟买票' },
