@@ -373,8 +373,8 @@ window.TRIP = (function () {
         ],
       },
       items: [
-        { time: '08:30–09:00', title: '退房寄行李，打车去真理之口', kind: 'transfer', note: '排队就 pass', img: 'bocca' },
-        { time: '09:15–10:45', title: '真理之口步行上山 → 橘子公园', kind: 'sight', img: 'orange-garden' },
+        { time: '08:30–09:00', title: '真理之口', kind: 'sight', note: '退房寄行李后打车前往 · 排队就 pass', img: 'bocca' },
+        { time: '09:15–10:45', title: '橘子公园', kind: 'sight', img: 'orange-garden' },
         { time: '顺路', title: '马耳他骑士团广场（钥匙孔）', kind: 'sight', note: '距橘子公园步行 2 分钟', img: 'malta-keyhole' },
         { time: '10:45–11:45', title: '慢悠悠下山，山脚喝杯咖啡', kind: 'food' },
         { time: '11:00–11:25', title: '打车回酒店取行李', kind: 'transfer', note: '机场大巴或出租车' },
@@ -484,7 +484,7 @@ window.TRIP = (function () {
           kind: 'transfer',
           note: 'Peu del Funicular 地铁站坐第二节车厢 → 缆车 → 111 路公交',
         },
-        { time: '16:30–19:00', title: 'Tibidabo 圣心大教堂', kind: 'sight', note: '山上风大；看日落缆车 · 着装见当日穿搭', img: 'tibidabo' },
+        { time: '16:30–19:00', title: '圣心大教堂', kind: 'sight', note: 'Tibidabo · 山上风大；看日落缆车 · 着装见当日穿搭', img: 'tibidabo' },
       ],
     },
     {

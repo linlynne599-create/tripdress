@@ -1546,6 +1546,9 @@ document.addEventListener('keydown', (e) => {
     d.spots = (d.spots || []).filter((s) => s.title !== '包车到米兰中央车站');
     d.spots.forEach((s) => {
       if (s.title === '打车前往梵蒂冈圣彼得广场') s.title = '梵蒂冈圣彼得广场';
+      if (s.title === '退房寄行李，打车去真理之口') s.title = '真理之口';
+      if (s.title === '真理之口步行上山 → 橘子公园') s.title = '橘子公园';
+      if (s.title === 'Tibidabo 圣心大教堂') s.title = '圣心大教堂';
     });
   });
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
