@@ -1039,6 +1039,40 @@ function dropItemOnStage(it, at) {
   save(); renderStage(); renderRail(); renderDayStrip(); renderWardrobe(); renderDaySummary();
 }
 
+/* ---------------------------------------- 当前景点搭配 → 当日全部景点 */
+function copyOutfitToAllDaySpots() {
+  const d = curDay();
+  const sp = curSpot();
+  if (!d || !sp) { toast('先选一天和一个景点'); return; }
+  const src = layersOf(spotKey());
+  if (!src.length) { toast('当前这张图上还没有单品'); return; }
+  const others = d.spots.filter((t) => t.id !== sp.id);
+  if (!others.length) { toast('今天没有别的景点了'); return; }
+  if (!confirm(`把「${sp.title}」上的 ${src.length} 件单品（位置大小一起）复制到今日另外 ${others.length} 个景点？\n已有搭配会被覆盖。`)) return;
+
+  others.forEach((target) => {
+    const key = `${d.id}:${target.id}`;
+    S.layers[key] = src.map((L) => ({
+      id: uid(),
+      itemId: L.itemId,
+      src: L.src,
+      x: L.x,
+      y: L.y,
+      w: L.w,
+      rot: L.rot,
+      op: L.op,
+      flip: !!L.flip,
+    }));
+  });
+  sel = null;
+  save();
+  renderStage();
+  renderRail();
+  renderDayStrip();
+  renderDaySummary();
+  toast(`已复制到今日 ${others.length} 个景点`);
+}
+
 /* ------------------------------------------------------ 今日穿搭汇总 */
 function renderDaySummary() {
   const box = $('#day-summary');
@@ -1667,6 +1701,7 @@ $('#btn-empty-add').onclick = () => {
 };
 $('#btn-export').onclick = exportPNG;
 $('#btn-replace-bg').onclick = () => { const sp = curSpot(); if (sp) replaceSpotPhoto(sp); };
+$('#btn-copy-day').onclick = () => copyOutfitToAllDaySpots();
 $('#btn-desperson').onclick = () => despersonSpotPhoto();
 $('#btn-restore-bg').onclick = () => {
   const sp = curSpot();

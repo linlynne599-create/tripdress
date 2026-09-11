@@ -6,7 +6,7 @@
 <title>欧洲蜜月 OOTD · 把衣服搭到景点照片上</title>
 <meta name="description" content="欧洲蜜月行程 OOTD：把衣橱单品拖到景点照片上预览成片，支持裁剪与抠图。" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=30" />
+<link rel="stylesheet" href="styles.css?v=31" />
 </head>
 <body>
 
@@ -36,6 +36,7 @@
       </div>
       <div class="stage-head-btns">
         <button class="btn btn-sm" id="btn-replace-bg" type="button">换一张</button>
+        <button class="btn btn-sm" id="btn-copy-day" type="button" title="把当前照片上的单品位置，复制到今日其余景点">复制至当日</button>
         <button class="btn btn-sm" id="btn-desperson" type="button" title="粗略去掉画面里的人，方便再贴穿搭">去人物</button>
         <button class="btn btn-sm" id="btn-restore-bg" type="button" hidden>恢复原图</button>
         <button class="btn btn-sm btn-go" id="btn-export" type="button">导出</button>
@@ -97,6 +98,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js?v=5"></script>
-<script src="app.js?v=30"></script>
+<script src="app.js?v=31"></script>
 </body>
 </html>
