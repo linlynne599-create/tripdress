@@ -1465,10 +1465,62 @@ function openAddPiece(presetCat) {
 
 /* =====================================================================
    去人物（粗）：BodyPix 识别人形 + 从边缘向内填色，不追求精细
-   第一次会下载约 5MB 模型，之后浏览器缓存。
+   模型权重放在 ../assets/models/bodypix/，不依赖 Google Storage。
    ===================================================================== */
-const BODYPIX_LIB = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/+esm';
+const TFJS_VER = '3.21.0';
+const TF_SCRIPTS = [
+  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@${TFJS_VER}/dist/tf-core.min.js`,
+  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@${TFJS_VER}/dist/tf-converter.min.js`,
+  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@${TFJS_VER}/dist/tf-backend-webgl.min.js`,
+  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VER}/dist/tf-backend-wasm.min.js`,
+  `https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js`,
+];
+const BODYPIX_MODEL_URL = new URL('../assets/models/bodypix/', document.baseURI).href;
 let bodyPixNet = null;
+const scriptOnce = new Map();
+
+function loadScriptOnce(src) {
+  if (scriptOnce.has(src)) return scriptOnce.get(src);
+  const p = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error(`脚本加载失败：${src}`));
+    document.head.appendChild(s);
+  });
+  scriptOnce.set(src, p);
+  return p;
+}
+
+async function ensureBodyPixNet(onStep) {
+  if (bodyPixNet) return bodyPixNet;
+  onStep?.('正在加载 TensorFlow.js…');
+  for (const url of TF_SCRIPTS) await loadScriptOnce(url);
+  const tf = window.tf;
+  const bodyPix = window.bodyPix;
+  if (!tf?.setBackend || !bodyPix?.load) throw new Error('运行库未就绪');
+  onStep?.('正在初始化计算后端…');
+  let backendOk = await tf.setBackend('webgl');
+  await tf.ready();
+  if (!backendOk) {
+    if (tf.wasm?.setWasmPaths) {
+      tf.wasm.setWasmPaths(`https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VER}/dist/`);
+    }
+    backendOk = await tf.setBackend('wasm');
+    await tf.ready();
+  }
+  if (!backendOk) throw new Error('无法启用 WebGL / WASM 计算后端');
+  onStep?.('正在加载人物模型（本站）…');
+  bodyPixNet = await bodyPix.load({
+    architecture: 'MobileNetV1',
+    outputStride: 16,
+    multiplier: 0.75,
+    quantBytes: 2,
+    modelUrl: BODYPIX_MODEL_URL,
+  });
+  return bodyPixNet;
+}
 
 function dilatePersonMask(mask, w, h, radius) {
   const out = new Uint8Array(mask.length);
@@ -1518,16 +1570,7 @@ function inpaintFromEdges(data, mask, w, h, maxIter) {
 }
 
 async function removePeopleFromImage(src, onStep) {
-  onStep?.('正在加载人物识别模型…');
-  const bp = await import(BODYPIX_LIB);
-  if (!bodyPixNet) {
-    bodyPixNet = await bp.load({
-      architecture: 'MobileNetV1',
-      outputStride: 16,
-      multiplier: 0.75,
-      quantBytes: 2,
-    });
-  }
+  const net = await ensureBodyPixNet(onStep);
   const im = await loadImg(src, true);
   const maxW = 900;
   const scale = Math.min(1, maxW / im.naturalWidth);
@@ -1539,16 +1582,16 @@ async function removePeopleFromImage(src, onStep) {
   ctx.drawImage(im, 0, 0, w, h);
 
   onStep?.('正在识别画面里的人…');
-  const segCfg = { internalResolution: 'medium', segmentationThreshold: 0.45, maxDetections: 8 };
+  const segCfg = { internalResolution: 'medium', segmentationThreshold: 0.45, nmsRadius: 20 };
   const mask = new Uint8Array(w * h);
-  if (typeof bodyPixNet.segmentMultiPerson === 'function') {
-    const people = await bodyPixNet.segmentMultiPerson(c, segCfg);
+  if (typeof net.segmentMultiPerson === 'function') {
+    const people = await net.segmentMultiPerson(c, segCfg);
     people.forEach((seg) => {
       seg.data.forEach((v, i) => { if (v) mask[i] = 1; });
     });
   }
   if (!mask.some((v) => v)) {
-    const one = await bodyPixNet.segmentPerson(c, segCfg);
+    const one = await net.segmentPerson(c, segCfg);
     one.data.forEach((v, i) => { if (v) mask[i] = 1; });
   }
   if (!mask.some((v) => v)) throw new Error('no person');
@@ -1586,7 +1629,8 @@ async function despersonSpotPhoto() {
     tip.done('好了，可继续贴穿搭 · 不满意点「恢复原图」');
   } catch (e) {
     console.warn('desperson', e);
-    tip.done('去人物没成功（可能没认到人，或模型加载失败）');
+    bodyPixNet = null;
+    tip.done(`去人物失败：${e?.message || '未知错误'}`);
   }
 }
 
