@@ -499,77 +499,84 @@ function renderDayStrip() {
   keepInView(box, $('.daychip.on', box));
 }
 
-/* ---------------------------------------------------- 主图左右滑：景点 / 跨天 */
-function goSpotByDelta(delta) {
-  const d = curDay();
-  if (!d?.spots?.length) return false;
-  const i = d.spots.findIndex((s) => s.id === S.curSpot);
-  const next = (i < 0 ? 0 : i) + delta;
-  if (next < 0 || next >= d.spots.length) return false;
-  S.curSpot = d.spots[next].id;
-  sel = null;
-  save();
-  renderStage();
-  renderRail();
-  renderDayStrip();
-  renderDaySummary();
-  return true;
+/* ---------------------------------------------------- 主图左右滑：景点（含跨天首尾相接） */
+function allSpotSteps() {
+  const steps = [];
+  S.days.forEach((d) => {
+    (d.spots || []).forEach((s) => steps.push({ dayId: d.id, spotId: s.id }));
+  });
+  return steps;
 }
 
-function goDayByDelta(delta) {
+function currentSpotStepIndex(steps) {
+  let i = steps.findIndex((x) => x.dayId === S.curDay && x.spotId === S.curSpot);
+  if (i >= 0) return i;
   const di = S.days.findIndex((x) => x.id === S.curDay);
-  const ni = di + delta;
-  if (ni < 0 || ni >= S.days.length) return false;
-  const day = S.days[ni];
-  S.curDay = day.id;
-  S.curSpot = delta > 0
-    ? (day.spots[0]?.id || null)
-    : (day.spots[day.spots.length - 1]?.id || null);
+  if (di < 0) return 0;
+  i = steps.findIndex((x) => x.dayId === S.curDay);
+  return i >= 0 ? i : 0;
+}
+
+function goSpotStepByDelta(delta) {
+  const steps = allSpotSteps();
+  if (!steps.length) return false;
+  const ni = currentSpotStepIndex(steps) + delta;
+  if (ni < 0 || ni >= steps.length) return false;
+  const step = steps[ni];
+  const dayChanged = step.dayId !== S.curDay;
+  S.curDay = step.dayId;
+  S.curSpot = step.spotId;
   sel = null;
   save();
-  renderAll();
+  if (dayChanged) renderAll();
+  else {
+    renderStage();
+    renderRail();
+    renderDayStrip();
+    renderDaySummary();
+    renderOutfitTip();
+    renderDayWeather();
+    syncChromeHeights();
+  }
   return true;
 }
 
-function stageSwipeNext() {
-  if (goSpotByDelta(1)) return;
-  goDayByDelta(1);
-}
-
-function stageSwipePrev() {
-  if (goSpotByDelta(-1)) return;
-  goDayByDelta(-1);
-}
+function stageSwipeNext() { goSpotStepByDelta(1); }
+function stageSwipePrev() { goSpotStepByDelta(-1); }
 
 function initStageSwipe() {
-  const wrap = $('.stage-wrap');
-  if (!wrap || wrap.dataset.swipe) return;
-  wrap.dataset.swipe = '1';
+  const zone = $('.stage-panel');
+  if (!zone || zone.dataset.swipe) return;
+  zone.dataset.swipe = '1';
   let x0 = 0; let y0 = 0; let ok = false; let moved = false;
+  let swipeLayer = false;
 
-  wrap.addEventListener('pointerdown', (e) => {
+  const blockStart = (e) => e.target.closest('.layer, .handle, button, input, textarea, .layerbar');
+
+  zone.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (e.target.closest('.layer, .handle, button, input, .layerbar')) return;
+    if (blockStart(e)) return;
+    swipeLayer = !!e.target.closest('.layer');
     x0 = e.clientX; y0 = e.clientY;
     ok = true;
     moved = false;
   });
-  wrap.addEventListener('pointermove', (e) => {
+  zone.addEventListener('pointermove', (e) => {
     if (!ok) return;
     if (Math.hypot(e.clientX - x0, e.clientY - y0) > 8) moved = true;
   });
-  wrap.addEventListener('pointerup', (e) => {
+  const finish = (e) => {
     if (!ok) return;
     ok = false;
-    if (e.target.closest('.layer, .handle')) return;
+    if (swipeLayer) return;
     const dx = e.clientX - x0;
     const dy = e.clientY - y0;
-    if (!moved || Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
+    if (!moved || Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.12) return;
     if (dx < 0) stageSwipeNext();
     else stageSwipePrev();
-  });
-  wrap.addEventListener('pointercancel', () => { ok = false; });
-
+  };
+  zone.addEventListener('pointerup', finish);
+  zone.addEventListener('pointercancel', () => { ok = false; });
 }
 
 /** 双指捏合改大小、双指旋转改角度（替代已去掉的角度滑条） */
