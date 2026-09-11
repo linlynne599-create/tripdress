@@ -229,9 +229,19 @@ function renderAll() {
   renderDayLook();
 }
 
+/* 重画横向滚动条时别把滚动位置甩回开头，选中的那个也要留在视野里 */
+function keepInView(box, el) {
+  if (!el) return;
+  const b = box.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  if (r.left < b.left + 10) box.scrollLeft -= b.left + 10 - r.left;
+  else if (r.right > b.right - 10) box.scrollLeft += r.right - (b.right - 10);
+}
+
 /* ----------------------------------------------------------- 日期条 */
 function renderDayStrip() {
   const box = $('#daystrip');
+  const keep = box.scrollLeft;
   box.innerHTML = '';
   S.days.forEach((d) => {
     const dressed = d.spots.some((s) => (S.layers[`${d.id}:${s.id}`] || []).length);
@@ -251,7 +261,10 @@ function renderDayStrip() {
   });
   if (!S.days.length) {
     box.innerHTML = '<span class="wd-note">还没有行程，点右上角「导入行程」。</span>';
+    return;
   }
+  box.scrollLeft = keep;
+  keepInView(box, $('.daychip.on', box));
 }
 
 /* ------------------------------------------------------------ 预览台 */
@@ -458,6 +471,8 @@ $('#stage').addEventListener('pointerdown', (e) => {
 function renderRail() {
   const rail = $('#spot-rail');
   const d = curDay();
+  const keep = rail.dataset.day === S.curDay ? rail.scrollLeft : 0;
+  rail.dataset.day = S.curDay || '';
   rail.innerHTML = '';
   if (!d) return;
 
@@ -498,6 +513,9 @@ function renderRail() {
   add.innerHTML = '<span>＋<br />加一个地点</span>';
   add.onclick = addSpot;
   rail.appendChild(add);
+
+  rail.scrollLeft = keep;
+  keepInView(rail, $('.spot.on', rail));
 }
 
 function addSpot() {
