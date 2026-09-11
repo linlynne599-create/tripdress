@@ -65,7 +65,7 @@ window.TRIP = (function () {
       weekday: '周三',
       city: '出发',
       cityId: 'xiamen',
-      theme: '厦门 → 新加坡',
+      theme: '厦门出发',
       img: 'xiamen',
       outfit: {
         summary: '红眼出发前 · 以舒适为主',
@@ -73,7 +73,7 @@ window.TRIP = (function () {
       },
       items: [
         { time: '19:30', title: '厦门 T3 机场集合', note: '19:30 到机场集合' },
-        { time: '21:30–01:40', title: '厦门 T3 → 新加坡樟宜 T1', kind: 'flight', status: 'booked' },
+        { time: '21:30', title: '厦门 T3 起飞', kind: 'flight', status: 'booked', note: '01:40 落地樟宜 · 行程算在 9.24' },
       ],
     },
     {
@@ -89,6 +89,14 @@ window.TRIP = (function () {
         lines: ['速干短袖/薄裙，雨伞放手边', '商场/地铁空调猛，薄外套或衬衫备一件'],
       },
       items: [
+        {
+          time: '01:40',
+          title: '抵达新加坡樟宜 T1',
+          kind: 'flight',
+          status: 'booked',
+          note: '红眼航班落地',
+          img: 'singapore',
+        },
         {
           time: '全天',
           title: '新加坡一日游',
@@ -118,7 +126,7 @@ window.TRIP = (function () {
           },
         },
         { time: '16:40', title: '回到樟宜机场', note: '16:40 要到机场' },
-        { time: '19:40–22:00', title: '新加坡樟宜 T1 → 多哈哈马德', kind: 'flight', status: 'todo', img: 'singapore' },
+        { time: '19:40–22:00', title: '新加坡樟宜 T1 → 多哈哈马德', kind: 'flight', status: 'todo' },
       ],
     },
     {
