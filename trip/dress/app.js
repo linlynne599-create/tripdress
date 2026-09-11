@@ -847,7 +847,7 @@ function renderRail() {
       <button class="spot-x" type="button" title="${src ? '删掉这张照片（行程还留着）' : '删掉这个地点'}">✕</button>
       <div class="spot-meta">
         <div class="spot-t">${esc(sp.title)}</div>
-        <div class="spot-time">${esc(sp.time || '')}${src && sp.custom ? ' · 自己的图' : ''}</div>
+        <div class="spot-time">${esc(sp.time || '')}</div>
       </div>`;
     card.onclick = (e) => {
       if (e.target.closest('.spot-x')) {
