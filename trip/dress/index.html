@@ -3,26 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>👗 旅行穿搭台 · 把衣服搭到每一天的行程上</title>
+<title>旅行穿搭台 · 把衣服搭到每一天的行程上</title>
 <meta name="description" content="导入每天的行程，给每一天配上自己的衣服、鞋子和发型，再把单品拖到景点照片里预览成片效果。" />
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=12" />
+<link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body>
 
 <header class="topbar">
   <a class="brand" href="../">
-    <span class="brand-mark">👗</span>
     <span class="brand-text">旅行穿搭台</span>
   </a>
   <p class="brand-sub" id="trip-title">欧洲蜜月行</p>
   <div class="top-actions">
-    <button class="btn" id="btn-import" type="button">📥 导入行程</button>
-    <button class="btn" id="btn-reset" type="button">↺ 重置</button>
-    <a class="btn btn-link" href="../">← 回到行程</a>
+    <button class="btn" id="btn-import" type="button">导入行程</button>
+    <button class="btn" id="btn-reset" type="button">重置</button>
+    <a class="btn btn-link" href="../">回到行程</a>
   </div>
 </header>
 
@@ -39,9 +35,9 @@
         <p class="stage-sub" id="stage-sub"></p>
       </div>
       <div class="stage-head-btns">
-        <button class="btn btn-sm" id="btn-replace-bg" type="button">📷 换这张照片</button>
-        <button class="btn btn-sm" id="btn-restore-bg" type="button" hidden>↺ 恢复原图</button>
-        <button class="btn btn-sm btn-go" id="btn-export" type="button">⬇ 导出成片</button>
+        <button class="btn btn-sm" id="btn-replace-bg" type="button">换这张照片</button>
+        <button class="btn btn-sm" id="btn-restore-bg" type="button" hidden>恢复原图</button>
+        <button class="btn btn-sm btn-go" id="btn-export" type="button">导出成片</button>
       </div>
     </div>
 
@@ -65,7 +61,7 @@
         <h3>这一天的景点照片</h3>
         <span class="rail-note">把自己的照片拖到某张卡片上就换掉它 · 拖到空白处是加新地点 ·
           ✕ 只删照片，行程和搭配都留着</span>
-        <button class="btn btn-sm" id="btn-add-spot" type="button">＋ 加地点</button>
+        <button class="btn btn-sm" id="btn-add-spot" type="button">加地点</button>
       </div>
       <div class="rail-track" id="spot-rail"></div>
     </div>
@@ -77,12 +73,11 @@
   <aside class="wardrobe">
     <div class="wd-head">
       <h3>我的衣橱</h3>
-      <button class="btn btn-sm" id="btn-add-piece" type="button">＋ 加单品</button>
+      <button class="btn btn-sm" id="btn-add-piece" type="button">加单品</button>
     </div>
-    <p class="wd-note">默认只有「衣服 / 裙子」，加单品时可以顺手新建鞋子、发型、包这些类别。
-      图片直接拖进这块地方，或者 ⌘/Ctrl + V 粘贴，都能导入。<br />
+    <p class="wd-note">图片直接拖进这块地方，或者 ⌘/Ctrl + V 粘贴，都能导入；加单品时可以顺手新建鞋子、发型、包这些类别。<br />
       <b>点一下单品就贴到当前那张照片上</b>；电脑上按住拖，可以放到指定位置。
-      单品右上角的 ⛶ 可以裁剪、✂ 去白底。</p>
+      单品右上角的 ⛶ 裁剪、✂ 去白底。</p>
     <div class="wd-cats" id="wd-cats"></div>
 
     <div class="wd-head wd-head-2">
@@ -107,6 +102,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js"></script>
-<script src="app.js?v=12"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

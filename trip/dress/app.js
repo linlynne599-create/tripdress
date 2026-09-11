@@ -280,7 +280,7 @@ function renderStage() {
   $('#stage-sub').textContent = d ? `${d.label} · ${d.date} ${d.weekday} · ${d.city}${sp?.time ? ' · ' + sp.time : ''}` : '';
   const src = spotSrc(sp);
   $('#btn-replace-bg').disabled = !sp;
-  $('#btn-replace-bg').textContent = src ? '📷 换这张照片' : '📷 加张照片';
+  $('#btn-replace-bg').textContent = src ? '换这张照片' : '加张照片';
   $('#btn-export').disabled = !src;
   $('#btn-restore-bg').hidden = !(sp && sp.base && (sp.custom || sp.cleared));
 
@@ -370,9 +370,9 @@ function renderLayerBar() {
     <span class="lb-group">大小<input type="range" id="lb-size" min="6" max="130" value="${Math.round(L.w * 100)}" /></span>
     <span class="lb-group">透明<input type="range" id="lb-op" min="20" max="100" value="${Math.round(L.op * 100)}" /></span>
     <span class="lb-group">角度<input type="range" id="lb-rot" min="-180" max="180" value="${Math.round(L.rot)}" /></span>
-    <button class="btn btn-sm" id="lb-flip">⇋ 镜像</button>
-    <button class="btn btn-sm" id="lb-top">⬆ 置顶</button>
-    <button class="btn btn-sm btn-danger" id="lb-del">✕ 删掉</button>
+    <button class="btn btn-sm" id="lb-flip">镜像</button>
+    <button class="btn btn-sm" id="lb-top">置顶</button>
+    <button class="btn btn-sm btn-danger" id="lb-del">删掉</button>
   `;
 
   const live = (id, fn) => {
@@ -487,7 +487,7 @@ function renderRail() {
     card.innerHTML = `
       ${src
         ? `<img class="spot-thumb" src="${esc(src)}" alt="" loading="lazy" />`
-        : '<div class="spot-blank"><span>＋<br />加照片</span></div>'}
+        : '<div class="spot-blank"><span>＋ 加照片</span></div>'}
       ${n ? `<span class="spot-badge">${n} 件</span>` : ''}
       <button class="spot-x" type="button" title="${src ? '删掉这张照片（行程还留着）' : '删掉这个地点'}">✕</button>
       <div class="spot-meta">
@@ -525,7 +525,7 @@ function renderRail() {
   const add = document.createElement('button');
   add.className = 'spot-add';
   add.type = 'button';
-  add.innerHTML = '<span>＋<br />加一个地点</span>';
+  add.innerHTML = '<span>＋ 加地点</span>';
   add.onclick = addSpot;
   rail.appendChild(add);
 
@@ -575,7 +575,7 @@ function renderTip() {
   if (!d?.tip) { box.hidden = true; return; }
   box.hidden = false;
   box.innerHTML =
-    `<h4>👖 这天的穿衣提醒 · ${esc(d.tip.summary || '')}</h4>` +
+    `<h4>这天的穿衣提醒 · ${esc(d.tip.summary || '')}</h4>` +
     (d.tip.lines?.length ? `<ul>${d.tip.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>` : '');
 }
 
@@ -589,7 +589,7 @@ function renderWardrobe() {
     const wrap = document.createElement('div');
     wrap.className = 'cat';
     wrap.dataset.cat = cat.id;
-    wrap.innerHTML = `<div class="cat-head"><span>${esc(cat.emoji || '🧺')}</span><span>${esc(cat.name)}</span>
+    wrap.innerHTML = `<div class="cat-head"><span>${esc(cat.name)}</span>
       ${cat.fixed ? '' : '<button class="cat-del" type="button">删类别</button>'}</div>`;
 
     const grid = document.createElement('div');
@@ -1316,8 +1316,8 @@ function openAddPiece(presetCat) {
 
     <label>放进哪一类</label>
     <div class="chiprow" id="ap-cats">
-      ${S.cats.map((c) => `<button type="button" data-cat="${esc(c.id)}">${esc(c.emoji)} ${esc(c.name)}</button>`).join('')}
-      ${fresh.map((p) => `<button type="button" data-new="${esc(p)}">＋ ${esc(p)}</button>`).join('')}
+      ${S.cats.map((c) => `<button type="button" data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join('')}
+      ${fresh.map((p) => `<button type="button" data-new="${esc(p)}">＋ ${esc(splitEmoji(p).name)}</button>`).join('')}
     </div>
     <input type="text" id="ap-custom" placeholder="或者自己写一类，例如：手链 / 美甲 / 香水" />
 
