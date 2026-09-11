@@ -25,6 +25,18 @@ function toast(msg) {
   toastTimer = setTimeout(() => { t.hidden = true; }, 2200);
 }
 
+/* 抠图要跑一会儿，需要一条不会自己消失、能改文字的提示 */
+function stickyToast(msg) {
+  const t = $('#toast');
+  clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.hidden = false;
+  return {
+    set: (m) => { t.textContent = m; },
+    done: (m) => { if (m) toast(m); else t.hidden = true; },
+  };
+}
+
 function loadImg(src, cors) {
   return new Promise((res, rej) => {
     const im = new Image();
@@ -605,7 +617,7 @@ function renderWardrobe() {
         <div class="piece-n" title="${esc(it.name)}">${esc(it.name)}</div>
         <div class="piece-tools">
           <button type="button" data-a="crop" title="裁剪">⛶</button>
-          <button type="button" data-a="cut" title="一键去白底">✂</button>
+          <button type="button" data-a="cut" title="一键抠图（只留这件东西）">✂</button>
           <button type="button" data-a="ren" title="改名字">✎</button>
           <button type="button" data-a="del" title="删掉">✕</button>
         </div>`;
@@ -788,15 +800,82 @@ async function cropSrc(src, box) {
   return c.toDataURL(alpha ? 'image/png' : 'image/jpeg', 0.9);
 }
 
-async function toggleCut(it) {
-  if (it.cut) {
-    it.useCut = !it.useCut;
-  } else {
-    toast('正在去白底…');
-    try { it.cut = await cutoutWhite(it.src); it.useCut = true; }
-    catch { toast('这张去不掉，换一张试试'); return; }
+/* =====================================================================
+   一键抠图：用在浏览器里跑的分割模型（帽子、包、鞋、人都能整体抠出来）
+   模型和 wasm 第一次要下载约 50MB，之后浏览器自己缓存，不用再下。
+   ===================================================================== */
+/* 必须用 jsDelivr 的 +esm 版本：原始 dist 里有 onnxruntime-web 这种裸模块名，浏览器解析不了 */
+const CUTOUT_LIB = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm';
+const MODEL_FLAG = 'tripdress-cutout-ready';
+let removeBg = null;
+
+async function cutoutSubject(src, onStep) {
+  if (!removeBg) {
+    onStep?.('正在准备抠图模型…');
+    const mod = await import(CUTOUT_LIB);
+    removeBg = mod.removeBackground || mod.default;
   }
-  save(); renderWardrobe(); renderStage(); renderDayLook();
+  const blob = await removeBg(src, {
+    model: 'isnet_quint8',                          // 三档里最小的一档
+    output: { format: 'image/png' },
+    progress: (key, cur, total) => {
+      if (/fetch/.test(key) && total) {
+        onStep?.(`正在下载模型 ${Math.round(cur / total * 100)}%（只用下这一次）`);
+      } else {
+        onStep?.('正在抠图…');
+      }
+    },
+  });
+  localStorage.setItem(MODEL_FLAG, '1');
+  return await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result);
+    fr.onerror = () => rej(fr.error);
+    fr.readAsDataURL(blob);
+  });
+}
+
+async function toggleCut(it) {
+  if (it.cut) {                                     // 抠过了，就只是切换用不用
+    it.useCut = !it.useCut;
+    save(); renderWardrobe(); renderStage(); renderDayLook();
+    return;
+  }
+  if (!localStorage.getItem(MODEL_FLAG)
+      && !confirm(
+        '【轻量 AI 抠图 · 方案 A】\n'
+        + '第一次约 50MB（浏览器缓存，以后本机抠图几秒就好）。\n'
+        + '帽子、包、鞋、穿在展厅/街景里的人像，都能整体抠出来。\n\n'
+        + '确定 = 下载并抠图\n'
+        + '取消 = 不下载，改用「仅去白底」（秒出，只适合白墙/电商白底图）'
+      )) {
+    return fallbackCut(it);
+  }
+  const tip = stickyToast('正在准备抠图模型…');
+  try {
+    it.cut = await cutoutSubject(it.src, tip.set);
+    it.useCut = true;
+    save(); renderWardrobe(); renderStage(); renderDayLook();
+    tip.done('抠好了，再点一次 ✂ 可以换回原图');
+  } catch (e) {
+    tip.done();
+    console.warn('抠图失败', e);
+    toast('抠图模型加载不了，先用白底去背顶一下');
+    return fallbackCut(it);
+  }
+}
+
+/* 模型下不下来（断网、网络被挡）时的退路：只能去掉白色背景 */
+async function fallbackCut(it) {
+  const tip = stickyToast('正在去白底…');
+  try {
+    it.cut = await cutoutWhite(it.src);
+    it.useCut = true;
+    save(); renderWardrobe(); renderStage(); renderDayLook();
+    tip.done('去好了');
+  } catch {
+    tip.done('这张去不掉，换一张试试');
+  }
 }
 
 function toggleInDay(it) {
