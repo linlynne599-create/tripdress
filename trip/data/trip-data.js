@@ -117,7 +117,7 @@ window.TRIP = (function () {
             ],
           },
         },
-        { time: '16:40', title: '回到樟宜机场', note: '16:40 要到机场', img: 'singapore' },
+        { time: '16:40', title: '回到樟宜机场', note: '16:40 要到机场' },
         { time: '19:40–22:00', title: '新加坡樟宜 T1 → 多哈哈马德', kind: 'flight', status: 'todo', img: 'singapore' },
       ],
     },
