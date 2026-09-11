@@ -6,9 +6,9 @@
 <title>欧洲蜜月 OOTD · 把衣服搭到景点照片上</title>
 <meta name="description" content="欧洲蜜月行程 OOTD：把衣橱单品拖到景点照片上预览成片，支持裁剪与抠图。" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=39" />
+<link rel="stylesheet" href="styles.css?v=40" />
 </head>
-<body>
+<body class="has-fixed-chrome">
 
 <header class="topbar">
   <a class="brand" href="../">
@@ -23,6 +23,7 @@
 </header>
 
 <nav class="daystrip" id="daystrip" aria-label="选择日期"></nav>
+<div class="day-weather" id="day-weather" hidden aria-live="polite"></div>
 
 <main class="workbench">
 
@@ -104,6 +105,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js?v=6"></script>
-<script src="app.js?v=39"></script>
+<script src="app.js?v=40"></script>
 </body>
 </html>

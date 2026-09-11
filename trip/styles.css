@@ -789,6 +789,15 @@ a { color: inherit; }
   transform: rotate(-2.5deg);
 }
 
+.day-wx-slot {
+  flex: 1 1 100%;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+.day-wx-slot.day-wx-live { color: #3d5a48; }
+
 .day-body { padding: 6px 26px 24px; border-top: 2px dashed var(--line); }
 
 .plan {

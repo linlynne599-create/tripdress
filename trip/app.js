@@ -386,6 +386,7 @@
       b.textContent = '⚡ 硬仗日';
       row.appendChild(b);
     }
+    row.appendChild(el('span', 'day-wx-slot'));
     meta.appendChild(row);
     meta.appendChild(el('div', 'day-city', d.city));
     meta.appendChild(el('p', 'day-theme', d.theme));
@@ -512,11 +513,46 @@
   }
 
   /* ============================================================ weather */
+  const wxByDate = {};
+
+  function tripDayIso(d) {
+    const y = T.meta.start.slice(0, 4);
+    const parts = String(d.date).split('.');
+    return `${y}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+  }
+
+  function forecastHorizonIso() {
+    const cap = new Date();
+    cap.setDate(cap.getDate() + 15);
+    return cap.toISOString().slice(0, 10);
+  }
+
   function wxIcon(wet, high) {
     if (wet >= 0.55) return '🌧';
     if (wet >= 0.35) return '🌦';
     if (wet >= 0.22) return '🌤';
     return high >= 24 ? '☀' : '🌤';
+  }
+
+  function applyDayWeatherBadges() {
+    T.days.forEach((d) => {
+      const slot = document.querySelector(`#day-${d.n} .day-wx-slot`);
+      if (!slot) return;
+      const iso = tripDayIso(d);
+      const wx = wxByDate[iso];
+      const place = T.weather.places.find((p) => p.key === d.cityId);
+      slot.textContent = '';
+      slot.className = 'day-wx-slot';
+      if (wx) {
+        slot.classList.add('day-wx-live');
+        slot.textContent =
+          `${wxIcon(wx.wet, wx.high)} ${Math.round(wx.high)}° / ${Math.round(wx.low)}° · 雨 ${Math.round(wx.wet * 100)}% · 预报`;
+      } else if (place && d.cityId !== 'xiamen') {
+        slot.classList.add('day-wx-norm');
+        slot.textContent =
+          `${wxIcon(place.wet, place.high)} ${Math.round(place.high)}° / ${Math.round(place.low)}° · 常年均`;
+      }
+    });
   }
 
   function renderWeather() {
@@ -555,36 +591,56 @@
       grid.appendChild(card);
     });
 
+    applyDayWeatherBadges();
     liveForecast();
   }
 
-  /* Once the trip is inside Open-Meteo's forecast horizon, replace the ten-year
-     averages with the real thing. Fails silently offline. */
+  /* Open-Meteo 16 天窗口内的每日预报；更远的日期仍显示常年均。 */
   async function liveForecast() {
     const w = T.weather;
     const daysOut = Math.ceil((new Date(T.meta.start + 'T00:00:00') - new Date()) / 86400000);
-    if (daysOut > 15) return;
+    if (daysOut > 16) return;
 
     const byId = Object.fromEntries(T.cities.map((c) => [c.id, c]));
+    const cap = forecastHorizonIso();
     const results = await Promise.all(
       w.places.map(async (p) => {
         const c = byId[p.key];
         if (!c) return null;
+        const end = p.end <= cap ? p.end : cap;
+        if (p.start > end) return null;
         const url =
           'https://api.open-meteo.com/v1/forecast' +
           `?latitude=${c.lat}&longitude=${c.lon}` +
-          `&start_date=${p.start}&end_date=${p.end}&timezone=auto` +
+          `&start_date=${p.start}&end_date=${end}&timezone=auto` +
           '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max';
         try {
           const res = await fetch(url);
           if (!res.ok) return null;
-          const d = (await res.json()).daily;
-          const avg = (a) => a.reduce((s, v) => s + v, 0) / a.length;
+          const daily = (await res.json()).daily;
+          daily.time.forEach((date, i) => {
+            const hi = daily.temperature_2m_max[i];
+            const lo = daily.temperature_2m_min[i];
+            const pr = daily.precipitation_probability_max[i];
+            if (hi == null || lo == null) return;
+            wxByDate[date] = {
+              high: hi,
+              low: lo,
+              wet: (pr ?? 0) / 100,
+            };
+          });
+          const vals = daily.time.map((_, i) => ({
+            hi: daily.temperature_2m_max[i],
+            lo: daily.temperature_2m_min[i],
+            pr: daily.precipitation_probability_max[i],
+          })).filter((v) => v.hi != null && v.lo != null);
+          if (!vals.length) return null;
+          const avg = (pick) => vals.reduce((s, v) => s + pick(v), 0) / vals.length;
           return {
             key: p.key,
-            high: avg(d.temperature_2m_max),
-            low: avg(d.temperature_2m_min),
-            wet: avg(d.precipitation_probability_max) / 100,
+            high: avg((v) => v.hi),
+            low: avg((v) => v.lo),
+            wet: avg((v) => (v.pr ?? 0)) / 100,
           };
         } catch (e) {
           return null;
@@ -593,6 +649,7 @@
     );
 
     const good = results.filter(Boolean);
+    applyDayWeatherBadges();
     if (!good.length) return;
 
     good.forEach((r) => {
@@ -605,7 +662,8 @@
       card.querySelector('.wx-bar i').style.width = Math.round(r.wet * 100) + '%';
       card.querySelector('.wx-rain-num').textContent = '下雨概率 ' + Math.round(r.wet * 100) + '%';
     });
-    $('#weather-lede').textContent = '出发日期已经进入预报范围，下面是 Open-Meteo 的实时预报。';
+    $('#weather-lede').textContent =
+      '已进入 Open-Meteo 预报窗口：下方卡片与每日行程里的标签会显示能查到的每日预报，其余日期仍是常年均温。';
   }
 
   /* =============================================================== oath */

@@ -136,6 +136,7 @@ function defaultState() {
       date: d.date,
       weekday: d.weekday || '',
       city: d.city,
+      cityId: d.cityId || '',
       theme: d.theme || '',
       outfit: copyOutfit(d.outfit),
       spots,
@@ -196,6 +197,145 @@ function ensureDayOutfits() {
   });
   if (changed) save();
 }
+
+function tripDayRecord(day) {
+  const T = window.TRIP;
+  if (!T?.days || !day) return null;
+  const m = String(day.id).match(/^d(\d+)$/);
+  if (m) {
+    const hit = T.days.find((x) => x.n === +m[1]);
+    if (hit) return hit;
+  }
+  return T.days.find((x) => x.date === day.date && x.city === day.city)
+    || T.days.find((x) => x.date === day.date) || null;
+}
+
+function tripIsoDate(dayOrTripDay) {
+  const y = (window.TRIP?.meta?.start || '2026-09-23').slice(0, 4);
+  const parts = String(dayOrTripDay.date || '').split('.');
+  if (parts.length < 2) return '';
+  const m = parts[0].padStart(2, '0');
+  const d = parts[1].padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function wxIcon(wet, high) {
+  if (wet >= 0.55) return '🌧';
+  if (wet >= 0.35) return '🌦';
+  if (wet >= 0.22) return '🌤';
+  return high >= 24 ? '☀' : '🌤';
+}
+
+const wxCache = { byDate: {}, live: false, loading: false };
+
+function weatherPlaceFor(cityId) {
+  const places = window.TRIP?.weather?.places;
+  if (!places || !cityId) return null;
+  return places.find((p) => p.key === cityId) || null;
+}
+
+function weatherForDay(day) {
+  const td = tripDayRecord(day);
+  const iso = tripIsoDate(td || day);
+  if (iso && wxCache.byDate[iso]) return { ...wxCache.byDate[iso], iso };
+  const cityId = day.cityId || td?.cityId;
+  const place = weatherPlaceFor(cityId);
+  if (!place) return null;
+  return {
+    high: place.high,
+    low: place.low,
+    wet: place.wet,
+    live: false,
+    hint: place.hint,
+    iso,
+  };
+}
+
+function forecastHorizonIso() {
+  const cap = new Date();
+  cap.setDate(cap.getDate() + 15);
+  return cap.toISOString().slice(0, 10);
+}
+
+async function loadWeatherForecasts() {
+  const T = window.TRIP;
+  if (!T?.weather || wxCache.loading) return;
+  const daysOut = Math.ceil((new Date(T.meta.start + 'T00:00:00') - new Date()) / 86400000);
+  if (daysOut > 16) return;
+
+  wxCache.loading = true;
+  const byId = Object.fromEntries((T.cities || []).map((c) => [c.id, c]));
+  const cap = forecastHorizonIso();
+  const ranges = {};
+
+  (T.days || []).forEach((d) => {
+    if (!d.cityId || d.cityId === 'xiamen') return;
+    const iso = tripIsoDate(d);
+    if (!iso || iso > cap) return;
+    if (!ranges[d.cityId]) ranges[d.cityId] = { min: iso, max: iso };
+    else {
+      if (iso < ranges[d.cityId].min) ranges[d.cityId].min = iso;
+      if (iso > ranges[d.cityId].max) ranges[d.cityId].max = iso;
+    }
+  });
+
+  await Promise.all(Object.entries(ranges).map(async ([cityId, range]) => {
+    const c = byId[cityId];
+    if (!c) return;
+    const end = range.max < cap ? range.max : cap;
+    if (range.min > end) return;
+    const url =
+      'https://api.open-meteo.com/v1/forecast' +
+      `?latitude=${c.lat}&longitude=${c.lon}` +
+      `&start_date=${range.min}&end_date=${end}&timezone=auto` +
+      '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max';
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const daily = (await res.json()).daily;
+      daily.time.forEach((date, i) => {
+        const hi = daily.temperature_2m_max[i];
+        const lo = daily.temperature_2m_min[i];
+        const pr = daily.precipitation_probability_max[i];
+        if (hi == null || lo == null) return;
+        wxCache.byDate[date] = {
+          high: hi,
+          low: lo,
+          wet: (pr ?? 0) / 100,
+          live: true,
+        };
+        wxCache.live = true;
+      });
+    } catch { /* 离线则继续用常年均 */ }
+  }));
+
+  wxCache.loading = false;
+  renderDayWeather();
+}
+
+function renderDayWeather() {
+  const el = $('#day-weather');
+  if (!el) return;
+  const d = curDay();
+  const wx = weatherForDay(d);
+  if (!wx) {
+    el.hidden = true;
+    syncChromeHeights();
+    return;
+  }
+  el.hidden = false;
+  el.removeAttribute('hidden');
+  const icon = wxIcon(wx.wet, wx.high);
+  const tag = wx.live ? '每日预报' : '常年均温';
+  const rain = Math.round(wx.wet * 100);
+  el.innerHTML =
+    `<span class="dwx-icon" aria-hidden="true">${icon}</span>` +
+    `<span class="dwx-main"><b>${Math.round(wx.high)}°</b> / ${Math.round(wx.low)}° · 雨 ${rain}%</span>` +
+    `<span class="dwx-tag">${tag}</span>` +
+    (wx.hint && !wx.live ? `<span class="dwx-hint">${esc(wx.hint)}</span>` : '');
+  syncChromeHeights();
+}
+
 const curSpot = () => {
   const d = curDay();
   return d ? d.spots.find((s) => s.id === S.curSpot) || d.spots[0] || null : null;
@@ -317,6 +457,8 @@ function renderAll() {
   renderWardrobe();
   renderOutfitTip();
   renderDaySummary();
+  renderDayWeather();
+  syncChromeHeights();
 }
 
 /* 重画横向滚动条时别把滚动位置甩回开头，选中的那个也要留在视野里 */
@@ -1164,12 +1306,19 @@ const stageVisible = () => {
   return r.bottom > 60 && r.top < window.innerHeight - 40;
 };
 
-/* 吸顶的照片要正好贴在日期条下面，高度按实际渲染出来的算 */
-function syncStickyTop() {
-  const h = $('.topbar').offsetHeight + $('#daystrip').offsetHeight;
-  document.documentElement.style.setProperty('--sticky-top', h + 'px');
+/** 顶栏 + 日期条 + 天气条固定，主内容用 padding 让出高度 */
+function syncChromeHeights() {
+  const tb = $('.topbar')?.offsetHeight || 56;
+  const ds = $('#daystrip')?.offsetHeight || 0;
+  const dw = $('#day-weather');
+  const wx = dw && !dw.hidden ? dw.offsetHeight : 0;
+  const chrome = tb + ds + wx;
+  document.documentElement.style.setProperty('--topbar-h', `${tb}px`);
+  document.documentElement.style.setProperty('--daystrip-h', `${ds}px`);
+  document.documentElement.style.setProperty('--daywx-h', `${wx}px`);
+  document.documentElement.style.setProperty('--chrome-h', `${chrome}px`);
 }
-window.addEventListener('resize', syncStickyTop);
+window.addEventListener('resize', syncChromeHeights);
 
 /* 手机上衣橱在照片下面，点一下直接贴上去，再把照片滚到眼前 */
 function placeOnPhoto(it) {
@@ -1977,8 +2126,14 @@ function refreshDaysFromTrip(keepWardrobe) {
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
   if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
   ensureDayOutfits();
+  S.days.forEach((day) => {
+    if (day.cityId) return;
+    const td = tripDayRecord(day);
+    if (td?.cityId) day.cityId = td.cityId;
+  });
   renderAll();
-  syncStickyTop();
+  syncChromeHeights();
+  loadWeatherForecasts();
   initStageSwipe();
   initLayerPinch();
 })();

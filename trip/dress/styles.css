@@ -93,8 +93,10 @@ p { margin: 0; }
 .btn[disabled] { opacity: .38; pointer-events: none; }
 
 /* -------------------------------------------------------------- topbar */
+.has-fixed-chrome { padding-top: var(--chrome-h, 110px); }
+
 .topbar {
-  position: sticky; top: 0; z-index: 40;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
   height: var(--topbar-h);
   display: flex; align-items: center; gap: 14px;
   padding: 0 20px;
@@ -113,7 +115,10 @@ p { margin: 0; }
 
 /* ------------------------------------------------------------ daystrip */
 .daystrip {
-  position: sticky; top: var(--topbar-h); z-index: 30;
+  position: fixed;
+  top: var(--topbar-h);
+  left: 0; right: 0;
+  z-index: 30;
   display: flex; gap: 6px;
   padding: 9px 20px;
   overflow-x: auto;
@@ -121,6 +126,40 @@ p { margin: 0; }
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
   scrollbar-width: thin;
+}
+
+.day-weather {
+  position: fixed;
+  top: calc(var(--topbar-h) + var(--daystrip-h, 52px));
+  left: 0; right: 0;
+  z-index: 29;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding: 6px 20px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: rgba(246, 246, 244, .96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.dwx-icon { font-size: 1.05rem; line-height: 1; }
+.dwx-main b { color: var(--ink); font-weight: 700; }
+.dwx-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.dwx-hint {
+  flex: 1 1 100%;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  line-height: 1.45;
 }
 .daychip {
   flex: none;
@@ -353,8 +392,8 @@ p { margin: 0; }
 
 /* ------------------------------------------------------------ wardrobe */
 .wardrobe {
-  position: sticky; top: calc(var(--topbar-h) + 54px);
-  max-height: calc(100vh - var(--topbar-h) - 70px);
+  position: sticky; top: var(--chrome-h, 110px);
+  max-height: calc(100vh - var(--chrome-h, 110px) - 16px);
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -580,19 +619,13 @@ p { margin: 0; }
   .brand-sub { display: none; }
   .top-actions .btn-link { display: none; }
 
-  /* 手机上照片吸在日期条下面：往下翻衣橱时它一直看得见，
-     不然照片和衣橱永远不会同屏，点了也不知道效果 */
   .stage-panel {
-    position: sticky;
-    top: var(--sticky-top, 104px);
-    z-index: 6;
     gap: 8px;
     margin: 0 -14px;
-    padding: 8px 14px 10px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--line);
+    padding: 0 14px;
   }
-  .stage { --maxh: 32vh; }
+  .stage { --maxh: 36vh; }
+  .day-weather { padding: 6px 14px; }
   .stage-head h2 { font-size: 16px; }
   .stage-sub { display: none; }
   .stage-hint { display: none; }
