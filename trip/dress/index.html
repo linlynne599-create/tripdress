@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>👗 旅行穿搭台 · 把衣服搭到每一天的行程上</title>
+<meta name="description" content="导入每天的行程，给每一天配上自己的衣服、鞋子和发型，再把单品拖到景点照片里预览成片效果。" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="../">
+    <span class="brand-mark">👗</span>
+    <span class="brand-text">旅行穿搭台</span>
+  </a>
+  <p class="brand-sub" id="trip-title">欧洲蜜月行</p>
+  <div class="top-actions">
+    <button class="btn" id="btn-import" type="button">📥 导入行程</button>
+    <button class="btn" id="btn-reset" type="button">↺ 重置</button>
+    <a class="btn btn-link" href="../">← 回到行程</a>
+  </div>
+</header>
+
+<nav class="daystrip" id="daystrip" aria-label="选择日期"></nav>
+
+<main class="workbench">
+
+  <!-- ------------------------------------------------------ 左：成片预览台 -->
+  <section class="stage-col">
+    <div class="stage-head">
+      <div>
+        <h2 id="stage-title">选一张景点照片</h2>
+        <p class="stage-sub" id="stage-sub"></p>
+      </div>
+      <div class="stage-head-btns">
+        <button class="btn btn-sm" id="btn-replace-bg" type="button">📷 换这张照片</button>
+        <button class="btn btn-sm" id="btn-restore-bg" type="button" hidden>↺ 恢复原图</button>
+        <button class="btn btn-sm btn-go" id="btn-export" type="button">⬇ 导出成片</button>
+      </div>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage" id="stage" tabindex="0">
+        <img class="stage-bg" id="stage-bg" alt="景点照片" />
+        <div class="stage-empty" id="stage-empty">
+          <p>这一天还没有照片</p>
+          <button class="btn" id="btn-empty-add" type="button">导入一张景点照片</button>
+        </div>
+      </div>
+      <p class="stage-hint" id="stage-hint">把右边衣橱里的单品拖进来 · 也可以直接把电脑里的图片拖到这张照片上</p>
+    </div>
+
+    <div class="layerbar" id="layerbar" hidden></div>
+
+    <div class="rail">
+      <div class="rail-head">
+        <h3>这一天的景点照片</h3>
+        <button class="btn btn-sm" id="btn-add-spot" type="button">＋ 加地点</button>
+      </div>
+      <div class="rail-track" id="spot-rail"></div>
+    </div>
+
+    <div class="tipcard" id="outfit-tip" hidden></div>
+  </section>
+
+  <!-- ---------------------------------------------------------- 右：衣橱 -->
+  <aside class="wardrobe">
+    <div class="wd-head">
+      <h3>我的衣橱</h3>
+      <button class="btn btn-sm" id="btn-add-cat" type="button">＋ 加类别</button>
+    </div>
+    <p class="wd-note">默认只有「衣服 / 裙子」。鞋子、发型、包、配饰想加就按上面的 ＋。</p>
+    <div class="wd-cats" id="wd-cats"></div>
+
+    <div class="wd-head wd-head-2">
+      <h3>Day 穿搭</h3>
+    </div>
+    <p class="wd-note">给这一天挑好的单品会记在这里，换天不会丢。</p>
+    <div class="daylook" id="daylook"></div>
+  </aside>
+
+</main>
+
+<!-- 通用弹窗 -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-card" id="modal-card"></div>
+</div>
+
+<!-- 拖拽时跟随手指的影子 -->
+<img class="dragghost" id="dragghost" alt="" hidden />
+
+<div class="toast" id="toast" hidden></div>
+
+<input type="file" id="filepick" accept="image/*" multiple hidden />
+
+<script src="../data/trip-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
