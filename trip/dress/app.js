@@ -98,6 +98,23 @@ let sel = null;        // 当前选中的图层 id
 let lastCat = null;    // 最近导过东西的类别，粘贴时默认进这里
 let pasteTarget = null;// 弹窗开着时，粘贴的图片先交给弹窗
 const IMG = (key) => `../assets/img/${key}.jpg`;
+/** trip-data.js 有改动时 +1，穿搭台会自动同步景点（保留衣橱） */
+const TRIP_DATA_REV = 5;
+
+function reloadTripScript() {
+  return new Promise((resolve, reject) => {
+    const url = new URL('../data/trip-data.js', document.baseURI);
+    url.searchParams.set('v', String(TRIP_DATA_REV));
+    url.searchParams.set('t', String(Date.now()));
+    document.querySelectorAll('script[data-trip-data]').forEach((n) => n.remove());
+    const s = document.createElement('script');
+    s.src = url.href;
+    s.dataset.tripData = '1';
+    s.onload = () => resolve(window.TRIP);
+    s.onerror = () => reject(new Error('行程数据加载失败'));
+    document.head.appendChild(s);
+  });
+}
 
 function defaultState() {
   const T = window.TRIP;
@@ -105,9 +122,11 @@ function defaultState() {
     const spots = [];
     const seen = new Set();
     const add = (title, time, key) => {
-      if (!key || seen.has(key) || title === '包车到米兰中央车站') return;
-      seen.add(key);
-      spots.push({ id: uid(), title, time: time || '', base: IMG(key), custom: null });
+      if (!key || title === '包车到米兰中央车站') return;
+      const token = `${key}\0${title}`;
+      if (seen.has(token)) return;
+      seen.add(token);
+      spots.push({ id: uid(), title, time: time || '', base: IMG(key), custom: null, cleared: false });
     };
     (d.items || []).forEach((it) => add(it.title, it.time, it.img));
     add(`${d.city} · ${d.theme}`, '当日主图', d.img);
@@ -124,6 +143,7 @@ function defaultState() {
 
   return {
     v: 1,
+    tripRev: TRIP_DATA_REV,
     title: T?.meta ? `${T.meta.title} · ${T.meta.subtitle}` : '我的行程',
     days,
     cats: [{ id: 'main', name: '衣服 / 裙子', emoji: '👗', fixed: true }],
@@ -1658,10 +1678,16 @@ $('#btn-restore-bg').onclick = () => {
 $('#btn-reset').onclick = async () => {
   if (!confirm('清空所有导入的衣服、照片和搭配，回到刚打开的样子？')) return;
   await dbClear();
+  try {
+    await reloadTripScript();
+  } catch {
+    toast('行程数据没刷新，请强刷页面后再试');
+    return;
+  }
   S = defaultState();
   sel = null;
   save(); renderAll();
-  toast('已经清空');
+  toast('已经清空，行程已同步最新版');
 };
 
 document.addEventListener('keydown', (e) => {
@@ -1685,14 +1711,38 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+function refreshDaysFromTrip(keepWardrobe) {
+  const prev = S;
+  const fresh = defaultState();
+  S.days = fresh.days;
+  S.title = fresh.title;
+  S.tripRev = fresh.tripRev;
+  if (keepWardrobe) {
+    S.items = prev.items || [];
+    S.cats = prev.cats || fresh.cats;
+    S.layers = {};
+  }
+  const dayIds = new Set(S.days.map((d) => d.id));
+  if (!dayIds.has(S.curDay)) S.curDay = S.days[0]?.id || null;
+  if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
+}
+
 /* ------------------------------------------------------------ 启动 */
 (async function boot() {
   const saved = await dbGet();
   S = saved && saved.days ? saved : defaultState();
-  // 老数据缺字段时补齐
   S.cats ||= [{ id: 'main', name: '衣服 / 裙子', emoji: '👗', fixed: true }];
   S.items ||= [];
   S.layers ||= {};
+
+  if ((S.tripRev || 0) < TRIP_DATA_REV) {
+    try {
+      await reloadTripScript();
+      refreshDaysFromTrip(true);
+      save();
+    } catch { /* 仍用缓存里的 TRIP，至少跑起来 */ }
+  }
+
   S.days.forEach((d) => {
     d.spots = (d.spots || []).filter((s) => s.title !== '包车到米兰中央车站');
     d.spots.forEach((s) => {
@@ -1700,6 +1750,7 @@ document.addEventListener('keydown', (e) => {
       if (s.title === '退房寄行李，打车去真理之口') s.title = '真理之口';
       if (s.title === '真理之口步行上山 → 橘子公园') s.title = '橘子公园';
       if (s.title === 'Tibidabo 圣心大教堂') s.title = '圣心大教堂';
+      if (s.title === '厦门 T3 → 新加坡樟宜 T1') s.title = '厦门 T3 起飞';
     });
   });
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
