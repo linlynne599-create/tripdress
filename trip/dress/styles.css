@@ -273,18 +273,20 @@ p { margin: 0; }
 }
 .outfit-tip-card {
   flex: none;
-  width: min(78vw, 280px);
+  width: max-content;
+  max-width: none;
   scroll-snap-align: start;
   margin: 0;
-  padding: 10px 12px;
+  padding: 8px 14px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   font-size: 12.5px;
-  line-height: 1.5;
+  line-height: 1.35;
   color: var(--ink-2);
+  white-space: nowrap;
 }
-.outfit-tip-card p { margin: 0; }
+.outfit-tip-card p { margin: 0; white-space: nowrap; }
 .outfit-tip-card.is-summary {
   color: var(--ink);
   font-weight: 600;
