@@ -694,6 +694,7 @@ function buildLayer(L) {
   el.addEventListener('dragstart', (e) => e.preventDefault());
 
   if (L.id === sel) {
+    el.appendChild(handle('h-del', '✕', () => removeLayer(L.id)));
     el.appendChild(handle('h-scale', '↘'));
     el.appendChild(handle('h-rotate', '↻'));
   }

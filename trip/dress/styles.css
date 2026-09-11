@@ -297,7 +297,8 @@ p { margin: 0; }
 }
 .h-scale  { right: -12px; bottom: -12px; cursor: nwse-resize; }
 .h-rotate { right: -12px; top: -12px; cursor: grab; }
-.h-del    { left: -12px; top: -12px; color: var(--danger); }
+.h-del    { left: -12px; top: -12px; color: var(--danger); font-size: 12px; }
+.h-del:hover { background: #fdeceb; border-color: var(--danger); }
 
 /* ------------------------------------------------------------ layerbar */
 .layerbar {
