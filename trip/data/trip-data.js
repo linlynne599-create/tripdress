@@ -45,7 +45,7 @@ window.TRIP = (function () {
   // lat/lon drive the schematic route map.
   const cities = [
     { id: 'xiamen', name: '厦门', country: '中国', lat: 24.48, lon: 118.09, img: 'xiamen', kind: 'origin' },
-    { id: 'singapore', name: '新加坡', country: '新加坡', lat: 1.35, lon: 103.82, img: 'singapore-day', kind: 'transit' },
+    { id: 'singapore', name: '新加坡', country: '新加坡', lat: 1.35, lon: 103.82, img: 'singapore-food', kind: 'transit' },
     { id: 'doha', name: '多哈', country: '卡塔尔', lat: 25.29, lon: 51.53, img: 'doha', kind: 'transit' },
     { id: 'paris', name: '巴黎', country: '法国', lat: 48.86, lon: 2.35, img: 'paris', kind: 'stay', nights: 3 },
     { id: 'como', name: '科莫湖', country: '意大利', lat: 46.01, lon: 9.26, img: 'como', kind: 'daytrip' },
@@ -73,7 +73,7 @@ window.TRIP = (function () {
       },
       items: [
         { time: '19:30', title: '厦门 T3 机场集合', note: '19:30 到机场集合' },
-        { time: '21:30–01:40', title: '厦门 T3 → 新加坡樟宜 T1', kind: 'flight', status: 'booked', img: 'singapore' },
+        { time: '21:30–01:40', title: '厦门 T3 → 新加坡樟宜 T1', kind: 'flight', status: 'booked' },
       ],
     },
     {
@@ -83,7 +83,7 @@ window.TRIP = (function () {
       city: '新加坡',
       cityId: 'singapore',
       theme: '中转一日游',
-      img: 'singapore-day',
+      img: 'singapore-food',
       outfit: {
         summary: '新加坡闷热 · 透气 + 防雨',
         lines: ['速干短袖/薄裙，雨伞放手边', '商场/地铁空调猛，薄外套或衬衫备一件'],
