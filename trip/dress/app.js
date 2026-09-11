@@ -1475,7 +1475,8 @@ const TF_SCRIPTS = [
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${TFJS_VER}/dist/tf-backend-wasm.min.js`,
   `https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js`,
 ];
-const BODYPIX_MODEL_URL = new URL('../assets/models/bodypix/', document.baseURI).href;
+// Pages 不提供目录索引，必须指向具体 model JSON（权重 shard 与 JSON 同目录即可）
+const BODYPIX_MODEL_URL = new URL('../assets/models/bodypix/model-stride16.json', document.baseURI).href;
 let bodyPixNet = null;
 const scriptOnce = new Map();
 
