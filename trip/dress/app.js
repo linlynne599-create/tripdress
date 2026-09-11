@@ -310,7 +310,7 @@ function renderStage() {
 
 function buildLayer(L) {
   const el = document.createElement('div');
-  el.className = `layer f-${L.frame}` + (L.id === sel ? ' sel' : '');
+  el.className = 'layer' + (L.id === sel ? ' sel' : '');
   el.dataset.id = L.id;
   el.style.width = (L.w * 100) + '%';
   el.style.left = (L.x * 100) + '%';
@@ -370,12 +370,6 @@ function renderLayerBar() {
     <span class="lb-group">大小<input type="range" id="lb-size" min="6" max="130" value="${Math.round(L.w * 100)}" /></span>
     <span class="lb-group">透明<input type="range" id="lb-op" min="20" max="100" value="${Math.round(L.op * 100)}" /></span>
     <span class="lb-group">角度<input type="range" id="lb-rot" min="-180" max="180" value="${Math.round(L.rot)}" /></span>
-    <span class="seg" id="lb-frame">
-      <button data-f="shadow" class="${L.frame === 'shadow' ? 'on' : ''}">无框</button>
-      <button data-f="round"  class="${L.frame === 'round' ? 'on' : ''}">圆角</button>
-      <button data-f="white"  class="${L.frame === 'white' ? 'on' : ''}">白边</button>
-      <button data-f="polar"  class="${L.frame === 'polar' ? 'on' : ''}">拍立得</button>
-    </span>
     <button class="btn btn-sm" id="lb-flip">⇋ 镜像</button>
     <button class="btn btn-sm" id="lb-top">⬆ 置顶</button>
     <button class="btn btn-sm btn-danger" id="lb-del">✕ 删掉</button>
@@ -390,9 +384,6 @@ function renderLayerBar() {
   live('lb-op', (v) => { L.op = v / 100; });
   live('lb-rot', (v) => { L.rot = v; });
 
-  $$('#lb-frame button', bar).forEach((b) => {
-    b.onclick = () => { L.frame = b.dataset.f; save(); renderStage(); };
-  });
   $('#lb-flip', bar).onclick = () => { L.flip = !L.flip; save(); patchLayer(L); };
   $('#lb-top', bar).onclick = () => {
     const list2 = layersOf(spotKey());
@@ -874,7 +865,7 @@ function dropItemOnStage(it, at) {
   if (d && !d.look.includes(it.id)) d.look.push(it.id);
   const L = {
     id: uid(), itemId: it.id, src: null,
-    x: at.x, y: at.y, w: 0.36, rot: 0, op: 1, frame: 'shadow', flip: false,
+    x: at.x, y: at.y, w: 0.36, rot: 0, op: 1, flip: false,
   };
   layersOf(spotKey()).push(L);
   sel = L.id;
@@ -1002,10 +993,7 @@ async function compose() {
   for (const L of layersOf(spotKey())) {
     const im = await loadImg(layerSrc(L), true);
     const w = L.w * W;
-    const pad = L.frame === 'white' ? w * 0.035 : L.frame === 'polar' ? w * 0.04 : 0;
-    const iw = w - pad * 2;
-    const ih = iw * (im.naturalHeight / im.naturalWidth);
-    const h = L.frame === 'polar' ? ih + pad + w * 0.14 : ih + pad * 2;
+    const h = w * (im.naturalHeight / im.naturalWidth);
 
     ctx.save();
     ctx.translate(L.x * W, L.y * H);
@@ -1015,23 +1003,9 @@ async function compose() {
     ctx.shadowColor = 'rgba(0,0,0,.34)';
     ctx.shadowBlur = w * 0.05;
     ctx.shadowOffsetY = w * 0.02;
-    if (pad) {
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(-w / 2, -h / 2, w, h);
-    }
     if (L.flip) ctx.scale(-1, 1);
 
-    const ix = -iw / 2, iy = -h / 2 + pad;
-    if (L.frame === 'round') {
-      ctx.beginPath();
-      const r = iw * 0.045;
-      ctx.roundRect ? ctx.roundRect(ix, iy, iw, ih, r) : ctx.rect(ix, iy, iw, ih);
-      ctx.fill();       // 让阴影落在圆角形状上
-      ctx.shadowColor = 'transparent';
-      ctx.clip();
-    }
-    if (pad) ctx.shadowColor = 'transparent';
-    ctx.drawImage(im, ix, iy, iw, ih);
+    ctx.drawImage(im, -w / 2, -h / 2, w, h);
     ctx.restore();
   }
   return c;
