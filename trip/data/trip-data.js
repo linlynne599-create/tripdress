@@ -228,6 +228,12 @@ window.TRIP = (function () {
       },
       hotel: { name: '威尼斯梅斯特雷住宿城市公寓酒店', nights: '9.28–9.29' },
       items: [
+        {
+          time: '04:30–05:15',
+          title: '包车送机：凡尔赛门酒店 → 巴黎奥利 T3',
+          kind: 'transfer',
+          note: '04:30 酒店上车 · 07:30 起飞 TO3940',
+        },
         { time: '07:30–09:05', title: '巴黎奥利 T3 → 米兰马尔彭萨 T1', kind: 'flight', status: 'booked', note: '航班 TO3940' },
         { time: '09:30–10:25', title: '包车到米兰中央车站', kind: 'transfer', note: '行李直接寄存在中央车站（如 KiPoint）', img: 'milan' },
         { time: '11:20–12:24', title: '米兰中央车站 → 瓦伦纳', kind: 'train', status: 'booked' },
@@ -547,8 +553,8 @@ window.TRIP = (function () {
       from: '凡尔赛门贝斯特韦斯特酒店',
       to: '巴黎奥利机场 T3',
       flight: '07:30 起飞 → 米兰',
-      time: '上车时间还没定',
-      note: '07:30 的航班，按提前 2 小时到机场算，酒店大概 04:30–05:00 就得走',
+      time: '04:30 酒店上车 · 约 05:00–05:15 到奥利 T3',
+      note: '航班 TO3940 · 5 人行李，提前约 2 小时到机场',
     },
     {
       date: '9.28',
