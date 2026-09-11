@@ -520,23 +520,29 @@ function renderRail() {
   keepInView(rail, $('.spot.on', rail));
 }
 
+async function addSpotFromFile(f) {
+  const d = curDay();
+  if (!d) return null;
+  const sp = {
+    id: uid(),
+    title: f.name.replace(/\.[a-z0-9]+$/i, '').slice(0, 24) || '新地点',
+    time: '',
+    base: await fileToSrc(f, 1800),
+    custom: null,
+  };
+  d.spots.push(sp);
+  return sp;
+}
+
 function addSpot() {
   const d = curDay();
   if (!d) { toast('先导入行程'); return; }
   pickFiles(true, async (files) => {
-    for (const f of files) {
-      const src = await fileToSrc(f, 1800);
-      d.spots.push({
-        id: uid(),
-        title: f.name.replace(/\.[a-z0-9]+$/i, '').slice(0, 24) || '新地点',
-        time: '',
-        base: src,
-        custom: null,
-      });
-    }
-    S.curSpot = d.spots[d.spots.length - 1].id;
+    let last = null;
+    for (const f of files) last = (await addSpotFromFile(f)) || last;
+    if (last) S.curSpot = last.id;
     save(); renderAll();
-    toast('加好了，双击卡片可以再换图');
+    toast('加好了，拖张图片到卡片上还能再换');
   });
 }
 
@@ -853,6 +859,51 @@ wdPanel.addEventListener('drop', async (e) => {
   $$('.cat.drop-on', wdPanel).forEach((n) => n.classList.remove('drop-on'));
   const made = await addItemsFromFiles(e.dataTransfer.files, catId);
   if (made.length) toast(`收进「${catOf(catId).name}」了`);
+});
+
+/* ------------------------------ 图片拖到景点卡片上 = 换掉那张景点照片 */
+const railEl = $('#spot-rail');
+const clearRail = () => $$('.drop-on', railEl).forEach((n) => n.classList.remove('drop-on'));
+
+railEl.addEventListener('dragover', (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  const zone = e.target.closest('.spot, .spot-add');
+  if (zone && !zone.classList.contains('drop-on')) { clearRail(); zone.classList.add('drop-on'); }
+  if (!zone) clearRail();
+});
+railEl.addEventListener('dragleave', (e) => {
+  if (e.relatedTarget && railEl.contains(e.relatedTarget)) return;
+  clearRail();
+});
+railEl.addEventListener('drop', async (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  clearRail();
+  const files = [...e.dataTransfer.files].filter((f) => /^image\//.test(f.type));
+  const d = curDay();
+  if (!files.length || !d) return;
+
+  const card = e.target.closest('.spot');
+  if (card) {
+    const sp = d.spots.find((s) => s.id === card.dataset.spot);
+    sp.custom = await fileToSrc(files[0], 1800);
+    S.curSpot = sp.id;
+    for (const f of files.slice(1)) await addSpotFromFile(f);   // 多拖的当新地点
+    save(); renderStage(); renderRail();
+    toast(`「${sp.title}」换成你的照片了`);
+    return;
+  }
+  let last = null;
+  for (const f of files) last = (await addSpotFromFile(f)) || last;
+  if (last) S.curSpot = last.id;
+  save(); renderAll();
+  toast(`加了 ${files.length} 个新地点`);
+});
+
+/* 图片掉到页面空白处时别让浏览器跳去打开它，那样页面就没了 */
+['dragover', 'drop'].forEach((t) => {
+  document.addEventListener(t, (e) => { if (hasFiles(e)) e.preventDefault(); });
 });
 
 /* 从桌面直接拖图片文件进来 */

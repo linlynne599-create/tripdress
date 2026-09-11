@@ -296,6 +296,8 @@ p { margin: 0; }
   cursor: pointer;
 }
 .spot-add:hover { background: var(--cream-2); color: var(--ink); }
+.spot-add.drop-on { background: var(--sage-soft); border-color: var(--sage); color: var(--ink); }
+.rail-note { font-size: 12px; color: var(--ink-3); }
 
 /* ------------------------------------------------------------- tipcard */
 .tipcard {
