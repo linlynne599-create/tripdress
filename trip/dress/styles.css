@@ -295,6 +295,19 @@ p { margin: 0; }
   font-size: 12px; line-height: 1; cursor: pointer; display: none;
 }
 .spot:hover .spot-x { display: block; }
+/* 触屏没有 hover，删除按钮得一直露着 */
+@media (hover: none) { .spot-x { display: block; } }
+
+/* 删掉照片但行程还在的地点 */
+.spot.blank { border-style: dashed; background: var(--cream-2); }
+.spot-blank {
+  height: 90px;
+  display: grid; place-items: center;
+  background: var(--cream-3);
+  border-bottom: 1px dashed var(--ink-3);
+  color: var(--ink-3); font-size: 12px; text-align: center; line-height: 1.35;
+}
+.spot.blank:hover .spot-blank { color: var(--ink); background: var(--butter); }
 .spot-add {
   flex: none; width: 132px; min-height: 132px;
   display: grid; place-items: center; gap: 4px;

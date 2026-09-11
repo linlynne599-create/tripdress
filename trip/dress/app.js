@@ -130,6 +130,8 @@ const curSpot = () => {
   return d ? d.spots.find((s) => s.id === S.curSpot) || d.spots[0] || null : null;
 };
 const spotKey = () => `${S.curDay}:${S.curSpot}`;
+/* 照片被删掉的地点：行程条目和搭配都留着，只是暂时没图 */
+const spotSrc = (sp) => (sp && !sp.cleared ? sp.custom || sp.base : null);
 const layersOf = (key) => (S.layers[key] ||= []);
 const itemById = (id) => S.items.find((i) => i.id === id);
 const catOf = (id) => S.cats.find((c) => c.id === id);
@@ -276,15 +278,21 @@ function renderStage() {
 
   $('#stage-title').textContent = sp ? sp.title : (d ? `${d.date} ${d.city}` : '选一张景点照片');
   $('#stage-sub').textContent = d ? `${d.label} · ${d.date} ${d.weekday} · ${d.city}${sp?.time ? ' · ' + sp.time : ''}` : '';
+  const src = spotSrc(sp);
   $('#btn-replace-bg').disabled = !sp;
-  $('#btn-export').disabled = !sp;
-  $('#btn-restore-bg').hidden = !(sp && sp.custom);
+  $('#btn-replace-bg').textContent = src ? '📷 换这张照片' : '📷 加张照片';
+  $('#btn-export').disabled = !src;
+  $('#btn-restore-bg').hidden = !(sp && sp.base && (sp.custom || sp.cleared));
 
   $$('.layer', stage).forEach((n) => n.remove());
 
-  if (!sp) {
+  if (!src) {
     bg.removeAttribute('src');
     bg.style.visibility = 'hidden';
+    $('#stage-empty-t').textContent = sp
+      ? `「${sp.title}」的照片删掉了，行程还留着`
+      : '这一天还没有照片';
+    $('#btn-empty-add').textContent = sp ? '给这个地点加张照片' : '导入一张景点照片';
     $('#stage-empty').hidden = false;
     $('#layerbar').hidden = true;
     return;
@@ -292,7 +300,6 @@ function renderStage() {
 
   $('#stage-empty').hidden = true;
   bg.style.visibility = 'visible';
-  const src = sp.custom || sp.base;
   if (bg.getAttribute('src') !== src) bg.src = src;
   const fit = () => stage.style.setProperty('--ar', (bg.naturalWidth / bg.naturalHeight) || 1.3333);
   if (bg.complete && bg.naturalWidth) fit(); else bg.onload = fit;
@@ -482,21 +489,33 @@ function renderRail() {
 
   d.spots.forEach((sp) => {
     const n = (S.layers[`${d.id}:${sp.id}`] || []).length;
+    const src = spotSrc(sp);
     const card = document.createElement('div');
-    card.className = 'spot' + (sp.id === S.curSpot ? ' on' : '');
+    card.className = 'spot' + (sp.id === S.curSpot ? ' on' : '') + (src ? '' : ' blank');
     card.dataset.spot = sp.id;
     card.innerHTML = `
-      <img class="spot-thumb" src="${esc(sp.custom || sp.base)}" alt="" loading="lazy" />
+      ${src
+        ? `<img class="spot-thumb" src="${esc(src)}" alt="" loading="lazy" />`
+        : '<div class="spot-blank"><span>＋<br />加照片</span></div>'}
       ${n ? `<span class="spot-badge">${n} 件</span>` : ''}
-      <button class="spot-x" type="button" title="删掉这个地点">✕</button>
+      <button class="spot-x" type="button" title="${src ? '删掉这张照片（行程还留着）' : '删掉这个地点'}">✕</button>
       <div class="spot-meta">
         <div class="spot-t">${esc(sp.title)}</div>
-        <div class="spot-time">${esc(sp.time || '')}${sp.custom ? ' · 自己的图' : ''}</div>
+        <div class="spot-time">${esc(sp.time || '')}${src && sp.custom ? ' · 自己的图' : ''}</div>
       </div>`;
     card.onclick = (e) => {
       if (e.target.closest('.spot-x')) {
         e.stopPropagation();
-        if (!confirm(`删掉「${sp.title}」这张？上面搭的衣服也会一起没。`)) return;
+        // 有图就只删图：行程条目和搭好的衣服都留着，加回照片就又出来了
+        if (spotSrc(sp)) {
+          sp.custom = null;
+          sp.cleared = true;
+          save(); renderAll();
+          toast('照片删了，行程还在 · 点这张卡片能再加一张');
+          return;
+        }
+        // 已经是空卡片了，再点一次才真的把这个地点去掉
+        if (!confirm(`「${sp.title}」这个地点也从今天去掉？${n ? '搭好的 ' + n + ' 件衣服会一起没。' : ''}`)) return;
         delete S.layers[`${d.id}:${sp.id}`];
         d.spots = d.spots.filter((x) => x.id !== sp.id);
         if (S.curSpot === sp.id) S.curSpot = d.spots[0]?.id || null;
@@ -506,6 +525,7 @@ function renderRail() {
       S.curSpot = sp.id;
       sel = null;
       save(); renderStage(); renderRail();
+      if (!src) replaceSpotPhoto(sp);     // 空卡片点一下就直接挑照片
     };
     card.ondblclick = () => replaceSpotPhoto(sp);
     rail.appendChild(card);
@@ -551,6 +571,7 @@ function addSpot() {
 function replaceSpotPhoto(sp) {
   pickFiles(false, async (files) => {
     sp.custom = await fileToSrc(files[0], 1800);
+    sp.cleared = false;
     save(); renderStage(); renderRail();
     toast('换好了');
   });
@@ -837,7 +858,7 @@ window.addEventListener('resize', syncStickyTop);
 
 /* 手机上衣橱在照片下面，点一下直接贴上去，再把照片滚到眼前 */
 function placeOnPhoto(it) {
-  if (!curSpot()) { toast('这一天还没有照片'); return; }
+  if (!spotSrc(curSpot())) { toast('这个地点还没有照片，先加一张'); return; }
   dropItemOnStage(it, { x: 0.5, y: 0.55 });
   if (isNarrow()) {
     // 照片被滚出去了才拉回来；smooth 在部分内置浏览器里会被忽略，所以用瞬时滚动
@@ -848,7 +869,7 @@ function placeOnPhoto(it) {
 
 function dropItemOnStage(it, at) {
   const sp = curSpot();
-  if (!sp) { toast('这一天还没有照片'); return; }
+  if (!spotSrc(sp)) { toast('这个地点还没有照片，先加一张'); return; }
   const d = curDay();
   if (d && !d.look.includes(it.id)) d.look.push(it.id);
   const L = {
@@ -927,6 +948,7 @@ railEl.addEventListener('drop', async (e) => {
   if (card) {
     const sp = d.spots.find((s) => s.id === card.dataset.spot);
     sp.custom = await fileToSrc(files[0], 1800);
+    sp.cleared = false;
     S.curSpot = sp.id;
     for (const f of files.slice(1)) await addSpotFromFile(f);   // 多拖的当新地点
     save(); renderStage(); renderRail();
@@ -969,7 +991,7 @@ $('#stage').addEventListener('dragleave', () => $('#stage').classList.remove('dr
    ===================================================================== */
 async function compose() {
   const sp = curSpot();
-  const bg = await loadImg(sp.custom || sp.base, true);
+  const bg = await loadImg(spotSrc(sp), true);
   const W = Math.min(bg.naturalWidth || 1600, 2400);
   const H = Math.round(W * (bg.naturalHeight / bg.naturalWidth));
   const c = document.createElement('canvas');
@@ -1018,7 +1040,7 @@ async function compose() {
 async function exportPNG() {
   const sp = curSpot();
   const d = curDay();
-  if (!sp) return;
+  if (!spotSrc(sp)) { toast('这个地点还没有照片'); return; }
   toast('正在合成…');
   try {
     const c = await compose();
@@ -1310,13 +1332,17 @@ function openAddPiece(presetCat) {
 $('#btn-import').onclick = openImport;
 $('#btn-add-piece').onclick = () => openAddPiece();
 $('#btn-add-spot').onclick = addSpot;
-$('#btn-empty-add').onclick = addSpot;
+$('#btn-empty-add').onclick = () => {
+  const sp = curSpot();
+  if (sp && !spotSrc(sp)) replaceSpotPhoto(sp); else addSpot();
+};
 $('#btn-export').onclick = exportPNG;
 $('#btn-replace-bg').onclick = () => { const sp = curSpot(); if (sp) replaceSpotPhoto(sp); };
 $('#btn-restore-bg').onclick = () => {
   const sp = curSpot();
   if (!sp) return;
   sp.custom = null;
+  sp.cleared = false;
   save(); renderStage(); renderRail();
 };
 $('#btn-reset').onclick = async () => {

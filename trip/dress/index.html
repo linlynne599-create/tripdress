@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css" />
 <!-- ?v= 是给浏览器看的版本号：改了样式或脚本就把它 +1，免得用户拿到缓存里的旧文件 -->
-<link rel="stylesheet" href="styles.css?v=8" />
+<link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body>
 
@@ -49,7 +49,7 @@
       <div class="stage" id="stage" tabindex="0">
         <img class="stage-bg" id="stage-bg" alt="景点照片" />
         <div class="stage-empty" id="stage-empty">
-          <p>这一天还没有照片</p>
+          <p id="stage-empty-t">这一天还没有照片</p>
           <button class="btn" id="btn-empty-add" type="button">导入一张景点照片</button>
         </div>
       </div>
@@ -63,7 +63,8 @@
     <div class="rail">
       <div class="rail-head">
         <h3>这一天的景点照片</h3>
-        <span class="rail-note">把自己的照片拖到某张卡片上就换掉它 · 拖到空白处是加新地点</span>
+        <span class="rail-note">把自己的照片拖到某张卡片上就换掉它 · 拖到空白处是加新地点 ·
+          ✕ 只删照片，行程和搭配都留着</span>
         <button class="btn btn-sm" id="btn-add-spot" type="button">＋ 加地点</button>
       </div>
       <div class="rail-track" id="spot-rail"></div>
@@ -105,6 +106,6 @@
 <input type="file" id="filepick" accept="image/*" multiple hidden />
 
 <script src="../data/trip-data.js"></script>
-<script src="app.js?v=8"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
