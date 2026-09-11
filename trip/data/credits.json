@@ -6,10 +6,16 @@
     "author": "Ymblanter"
   },
   "singapore": {
-    "file": "Supertree Grove, Gardens by the Bay, Singapore - 20120712-02.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:Supertree_Grove,_Gardens_by_the_Bay,_Singapore_-_20120712-02.jpg",
-    "license": "CC BY 2.0",
-    "author": "Shiny Things."
+    "file": "singapore.jpg",
+    "source": "用户提供 · 樟宜 Jewel 雨漩涡",
+    "license": "私人照片",
+    "author": "用户提供"
+  },
+  "singapore-day": {
+    "file": "singapore-day.jpg",
+    "source": "用户提供 · 鱼尾狮 Merlion Park",
+    "license": "私人照片",
+    "author": "用户提供"
   },
   "singapore-food": {
     "file": "Satay stall at East Coast Lagoon Food Village.jpg",

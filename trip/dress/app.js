@@ -1,5 +1,5 @@
 /* ===================================================================
-   👗 旅行穿搭台
+   👗 欧洲蜜月 OOTD
    ­
    行程和景点照片默认取自同目录的 ../data/trip-data.js（欧洲蜜月行 14 天），
    用户可以整份换掉。所有导入的图片和图层都存在浏览器的 IndexedDB 里，
@@ -118,9 +118,7 @@ function defaultState() {
       weekday: d.weekday || '',
       city: d.city,
       theme: d.theme || '',
-      tip: d.outfit || null,
       spots,
-      look: [],
     };
   });
 
@@ -238,9 +236,7 @@ function renderAll() {
   renderDayStrip();
   renderStage();
   renderRail();
-  renderTip();
   renderWardrobe();
-  renderDayLook();
 }
 
 /* 重画横向滚动条时别把滚动位置甩回开头，选中的那个也要留在视野里 */
@@ -580,22 +576,10 @@ function replaceSpotPhoto(sp) {
   });
 }
 
-/* ---------------------------------------------------- 当天穿搭小贴士 */
-function renderTip() {
-  const d = curDay();
-  const box = $('#outfit-tip');
-  if (!d?.tip) { box.hidden = true; return; }
-  box.hidden = false;
-  box.innerHTML =
-    `<h4>这天的穿衣提醒 · ${esc(d.tip.summary || '')}</h4>` +
-    (d.tip.lines?.length ? `<ul>${d.tip.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>` : '');
-}
-
 /* ---------------------------------------------------------------- 衣橱 */
 function renderWardrobe() {
   const box = $('#wd-cats');
   box.innerHTML = '';
-  const d = curDay();
 
   S.cats.forEach((cat) => {
     const wrap = document.createElement('div');
@@ -608,9 +592,8 @@ function renderWardrobe() {
     grid.className = 'grid';
 
     S.items.filter((i) => i.cat === cat.id).forEach((it) => {
-      const inDay = d?.look.includes(it.id);
       const el = document.createElement('div');
-      el.className = 'piece' + (it.useCut ? ' cut' : '') + (inDay ? ' inday' : '');
+      el.className = 'piece' + (it.useCut ? ' cut' : '');
       el.dataset.item = it.id;
       el.innerHTML = `
         <img src="${esc(it.useCut && it.cut ? it.cut : it.src)}" alt="${esc(it.name)}" />
@@ -626,13 +609,12 @@ function renderWardrobe() {
       el.querySelector('[data-a=ren]').onclick = (e) => {
         e.stopPropagation();
         const v = prompt('给它起个名字', it.name);
-        if (v) { it.name = v.slice(0, 20); save(); renderWardrobe(); renderDayLook(); }
+        if (v) { it.name = v.slice(0, 20); save(); renderWardrobe(); }
       };
       el.querySelector('[data-a=del]').onclick = (e) => {
         e.stopPropagation();
         if (!confirm(`把「${it.name}」从衣橱里删掉？已经搭到照片上的也会消失。`)) return;
         S.items = S.items.filter((x) => x.id !== it.id);
-        S.days.forEach((dd) => { dd.look = dd.look.filter((x) => x !== it.id); });
         Object.keys(S.layers).forEach((k) => {
           S.layers[k] = S.layers[k].filter((L) => L.itemId !== it.id);
         });
@@ -656,7 +638,6 @@ function renderWardrobe() {
       const ids = S.items.filter((i) => i.cat === cat.id).map((i) => i.id);
       S.items = S.items.filter((i) => i.cat !== cat.id);
       S.cats = S.cats.filter((c) => c.id !== cat.id);
-      S.days.forEach((dd) => { dd.look = dd.look.filter((x) => !ids.includes(x)); });
       Object.keys(S.layers).forEach((k) => {
         S.layers[k] = S.layers[k].filter((L) => !ids.includes(L.itemId));
       });
@@ -685,8 +666,7 @@ async function addItemsFromFiles(files, catId, name) {
   const made = [];
   for (const f of imgs) made.push(addItem(await fileToSrc(f, 1200), name || f.name, catId));
   const last = made[made.length - 1];
-  if (last && curDay() && !curDay().look.includes(last.id)) curDay().look.push(last.id);
-  save(); renderWardrobe(); renderDayLook();
+  save(); renderWardrobe();
   return made;
 }
 
@@ -777,7 +757,7 @@ function openCrop(it) {
       try {
         it.src = await cropSrc(it.src, box);
         if (it.cut) it.cut = await cropSrc(it.cut, box);   // 去白底那张要跟着裁，不然切回去就错位
-        save(); renderWardrobe(); renderDayLook(); renderStage();
+        save(); renderWardrobe(); renderStage();
         close();
         toast('裁好了');
       } catch { toast('裁剪失败，换一张试试'); }
@@ -838,7 +818,7 @@ async function cutoutSubject(src, onStep) {
 async function toggleCut(it) {
   if (it.cut) {                                     // 抠过了，就只是切换用不用
     it.useCut = !it.useCut;
-    save(); renderWardrobe(); renderStage(); renderDayLook();
+    save(); renderWardrobe(); renderStage();
     return;
   }
   if (!localStorage.getItem(MODEL_FLAG)
@@ -855,7 +835,7 @@ async function toggleCut(it) {
   try {
     it.cut = await cutoutSubject(it.src, tip.set);
     it.useCut = true;
-    save(); renderWardrobe(); renderStage(); renderDayLook();
+    save(); renderWardrobe(); renderStage();
     tip.done('抠好了，再点一次 ✂ 可以换回原图');
   } catch (e) {
     tip.done();
@@ -871,46 +851,11 @@ async function fallbackCut(it) {
   try {
     it.cut = await cutoutWhite(it.src);
     it.useCut = true;
-    save(); renderWardrobe(); renderStage(); renderDayLook();
+    save(); renderWardrobe(); renderStage();
     tip.done('去好了');
   } catch {
     tip.done('这张去不掉，换一张试试');
   }
-}
-
-function toggleInDay(it) {
-  const d = curDay();
-  if (!d) return;
-  const i = d.look.indexOf(it.id);
-  if (i < 0) { d.look.push(it.id); toast(`已加进 ${d.date} 的穿搭`); }
-  else { d.look.splice(i, 1); }
-  save(); renderWardrobe(); renderDayLook();
-}
-
-/* ------------------------------------------------------------ Day 穿搭 */
-function renderDayLook() {
-  const box = $('#daylook');
-  const d = curDay();
-  box.innerHTML = '';
-  if (!d || !d.look.length) {
-    box.innerHTML = '<p class="empty">这一天还没用过单品。点上面衣橱里的，就会贴到照片上。</p>';
-    return;
-  }
-  d.look.forEach((id) => {
-    const it = itemById(id);
-    if (!it) return;
-    const el = document.createElement('div');
-    el.className = 'dl-item';
-    el.innerHTML = `<img src="${esc(it.useCut && it.cut ? it.cut : it.src)}" alt="${esc(it.name)}" title="${esc(it.name)}" />
-      <button class="dl-x" type="button">✕</button>`;
-    el.querySelector('.dl-x').onclick = (e) => {
-      e.stopPropagation();
-      d.look = d.look.filter((x) => x !== id);
-      save(); renderWardrobe(); renderDayLook();
-    };
-    wirePieceDrag(el, it, () => placeOnPhoto(it));
-    box.appendChild(el);
-  });
 }
 
 /* =====================================================================
@@ -1045,15 +990,13 @@ function placeOnPhoto(it) {
 function dropItemOnStage(it, at) {
   const sp = curSpot();
   if (!spotSrc(sp)) { toast('这个地点还没有照片，先加一张'); return; }
-  const d = curDay();
-  if (d && !d.look.includes(it.id)) d.look.push(it.id);
   const L = {
     id: uid(), itemId: it.id, src: null,
     x: at.x, y: at.y, w: 0.36, rot: 0, op: 1, flip: false,
   };
   layersOf(spotKey()).push(L);
   sel = L.id;
-  save(); renderStage(); renderRail(); renderDayStrip(); renderWardrobe(); renderDayLook();
+  save(); renderStage(); renderRail(); renderDayStrip(); renderWardrobe();
 }
 
 /* ---------------------------------------------- 粘贴导入（⌘/Ctrl + V） */
@@ -1315,7 +1258,6 @@ function mkDay(i, o) {
     weekday: o.weekday || '',
     city: o.city || '',
     theme: o.theme || '',
-    tip: o.outfit || null,
     spots: (o.spots || []).map((s) => ({
       id: uid(),
       title: s.title || '未命名地点',
@@ -1323,7 +1265,6 @@ function mkDay(i, o) {
       base: s.img || s.image || PLACEHOLDER,
       custom: null,
     })),
-    look: [],
   };
 }
 
@@ -1473,9 +1414,7 @@ function openAddPiece(presetCat) {
       }
       const name = $('#ap-name').value.trim();
       staged.forEach((s, i) => addItem(s.src, name ? (staged.length > 1 ? `${name}${i + 1}` : name) : s.name, catId));
-      const last = S.items[S.items.length - 1];
-      if (curDay() && !curDay().look.includes(last.id)) curDay().look.push(last.id);
-      save(); renderWardrobe(); renderDayLook(); close();
+      save(); renderWardrobe(); close();
       toast(`加了 ${staged.length} 件进「${catOf(catId).name}」`);
     };
 
@@ -1542,7 +1481,6 @@ document.addEventListener('keydown', (e) => {
   S.items ||= [];
   S.layers ||= {};
   S.days.forEach((d) => {
-    d.look ||= [];
     d.spots = (d.spots || []).filter((s) => s.title !== '包车到米兰中央车站');
     d.spots.forEach((s) => {
       if (s.title === '打车前往梵蒂冈圣彼得广场') s.title = '梵蒂冈圣彼得广场';
