@@ -144,6 +144,23 @@ const spotKey = () => `${S.curDay}:${S.curSpot}`;
 const spotSrc = (sp) => (sp && !sp.cleared ? sp.custom || sp.base : null);
 const layersOf = (key) => (S.layers[key] ||= []);
 const itemById = (id) => S.items.find((i) => i.id === id);
+
+/** 当天所有景点图层里出现过的衣橱单品（去重，顺序按首次出现） */
+function itemsOnDay(d) {
+  if (!d) return [];
+  const seen = new Set();
+  const out = [];
+  d.spots.forEach((sp) => {
+    (S.layers[`${d.id}:${sp.id}`] || []).forEach((L) => {
+      if (!L.itemId || seen.has(L.itemId)) return;
+      const it = itemById(L.itemId);
+      if (!it) return;
+      seen.add(L.itemId);
+      out.push(it);
+    });
+  });
+  return out;
+}
 const catOf = (id) => S.cats.find((c) => c.id === id);
 const layerSrc = (L) => {
   if (L.itemId) {
@@ -237,6 +254,7 @@ function renderAll() {
   renderStage();
   renderRail();
   renderWardrobe();
+  renderDaySummary();
 }
 
 /* 重画横向滚动条时别把滚动位置甩回开头，选中的那个也要留在视野里 */
@@ -418,7 +436,7 @@ function removeLayer(id) {
   if (i < 0) return;
   list.splice(i, 1);
   if (sel === id) sel = null;
-  save(); renderStage(); renderDayStrip();
+  save(); renderStage(); renderDayStrip(); renderDaySummary(); renderWardrobe();
 }
 
 /* --------------------------------------------------- 图层拖动 / 缩放 */
@@ -581,6 +599,8 @@ function renderWardrobe() {
   const box = $('#wd-cats');
   box.innerHTML = '';
 
+  const onDay = new Set(itemsOnDay(curDay()).map((it) => it.id));
+
   S.cats.forEach((cat) => {
     const wrap = document.createElement('div');
     wrap.className = 'cat';
@@ -593,7 +613,7 @@ function renderWardrobe() {
 
     S.items.filter((i) => i.cat === cat.id).forEach((it) => {
       const el = document.createElement('div');
-      el.className = 'piece' + (it.useCut ? ' cut' : '');
+      el.className = 'piece' + (it.useCut ? ' cut' : '') + (onDay.has(it.id) ? ' inday' : '');
       el.dataset.item = it.id;
       el.innerHTML = `
         <img src="${esc(it.useCut && it.cut ? it.cut : it.src)}" alt="${esc(it.name)}" />
@@ -996,7 +1016,27 @@ function dropItemOnStage(it, at) {
   };
   layersOf(spotKey()).push(L);
   sel = L.id;
-  save(); renderStage(); renderRail(); renderDayStrip(); renderWardrobe();
+  save(); renderStage(); renderRail(); renderDayStrip(); renderWardrobe(); renderDaySummary();
+}
+
+/* ------------------------------------------------------ 今日穿搭汇总 */
+function renderDaySummary() {
+  const box = $('#day-summary');
+  if (!box) return;
+  const items = itemsOnDay(curDay());
+  box.innerHTML = '';
+  if (!items.length) {
+    box.innerHTML = '<p class="empty">今天还没有单品贴到景点照片上。</p>';
+    return;
+  }
+  items.forEach((it) => {
+    const el = document.createElement('div');
+    el.className = 'dl-item';
+    el.title = it.name;
+    el.innerHTML = `<img src="${esc(it.useCut && it.cut ? it.cut : it.src)}" alt="${esc(it.name)}" />`;
+    wirePieceDrag(el, it, () => placeOnPhoto(it));
+    box.appendChild(el);
+  });
 }
 
 /* ---------------------------------------------- 粘贴导入（⌘/Ctrl + V） */
