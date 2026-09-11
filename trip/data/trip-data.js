@@ -347,7 +347,7 @@ window.TRIP = (function () {
         { time: '14:15–14:45', title: '特雷维喷泉（许愿池）', kind: 'sight', img: 'trevi' },
         {
           time: '14:45–15:15',
-          title: '打车前往梵蒂冈圣彼得广场',
+          title: '梵蒂冈圣彼得广场',
           kind: 'transfer',
           note: '着装见当日穿搭建议 · 免费入场',
           img: 'st-peters-square',

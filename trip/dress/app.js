@@ -1544,6 +1544,9 @@ document.addEventListener('keydown', (e) => {
   S.days.forEach((d) => {
     d.look ||= [];
     d.spots = (d.spots || []).filter((s) => s.title !== '包车到米兰中央车站');
+    d.spots.forEach((s) => {
+      if (s.title === '打车前往梵蒂冈圣彼得广场') s.title = '梵蒂冈圣彼得广场';
+    });
   });
   if (!curDay() && S.days[0]) S.curDay = S.days[0].id;
   if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
