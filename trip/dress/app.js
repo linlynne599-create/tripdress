@@ -155,6 +155,14 @@ function defaultState() {
 }
 
 const curDay = () => S.days.find((d) => d.id === S.curDay) || S.days[0] || null;
+/** 当前天对应的 trip-data.js 条目（含 outfit 文案） */
+const tripDayMeta = () => {
+  const d = curDay();
+  const T = window.TRIP;
+  if (!d || !T?.days) return null;
+  const n = +String(d.id).replace(/^d/, '');
+  return T.days.find((x) => x.n === n) || null;
+};
 const curSpot = () => {
   const d = curDay();
   return d ? d.spots.find((s) => s.id === S.curSpot) || d.spots[0] || null : null;
@@ -274,6 +282,7 @@ function renderAll() {
   renderStage();
   renderRail();
   renderWardrobe();
+  renderOutfitTip();
   renderDaySummary();
 }
 
@@ -404,6 +413,60 @@ function initStageSwipe() {
 
 }
 
+/** 双指捏合改大小、双指旋转改角度（替代已去掉的角度滑条） */
+function initLayerPinch() {
+  const stage = $('#stage');
+  if (!stage || stage.dataset.pinch) return;
+  stage.dataset.pinch = '1';
+  let gesture = null;
+
+  const layerFromTouch = (target) => {
+    const el = target.closest?.('.layer');
+    if (!el) return null;
+    return layersOf(spotKey()).find((x) => x.id === el.dataset.id) || null;
+  };
+
+  stage.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 2) return;
+    const L = layerFromTouch(e.target);
+    if (!L) return;
+    if (sel !== L.id) {
+      sel = L.id;
+      $$('.layer', stage).forEach((n) => n.classList.toggle('sel', n.dataset.id === L.id));
+      renderLayerBar();
+    }
+    const t0 = e.touches[0];
+    const t1 = e.touches[1];
+    const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY) || 1;
+    const ang = Math.atan2(t1.clientY - t0.clientY, t1.clientX - t0.clientX);
+    gesture = { L, startW: L.w, startRot: L.rot, startDist: dist, startAng: ang };
+    e.preventDefault();
+  }, { passive: false });
+
+  stage.addEventListener('touchmove', (e) => {
+    if (!gesture || e.touches.length !== 2) return;
+    const { L, startW, startRot, startDist, startAng } = gesture;
+    const t0 = e.touches[0];
+    const t1 = e.touches[1];
+    const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY) || 1;
+    const ang = Math.atan2(t1.clientY - t0.clientY, t1.clientX - t0.clientX);
+    L.w = clamp(startW * (dist / startDist), 0.05, 1.6);
+    L.rot = Math.round(startRot + (ang - startAng) * 180 / Math.PI);
+    patchLayer(L);
+    e.preventDefault();
+  }, { passive: false });
+
+  const endPinch = () => {
+    if (!gesture) return;
+    gesture = null;
+    save();
+    renderLayerBar();
+    renderDayStrip();
+  };
+  stage.addEventListener('touchend', endPinch);
+  stage.addEventListener('touchcancel', endPinch);
+}
+
 /* ------------------------------------------------------------ 预览台 */
 function renderStage() {
   const d = curDay();
@@ -415,7 +478,7 @@ function renderStage() {
   $('#stage-sub').textContent = d ? `${d.label} · ${d.date} ${d.weekday} · ${d.city}${sp?.time ? ' · ' + sp.time : ''}` : '';
   const src = spotSrc(sp);
   $('#btn-replace-bg').disabled = !sp;
-  $('#btn-replace-bg').textContent = src ? '换一张' : '加一张';
+  $('#btn-replace-bg').textContent = src ? '换背景' : '加一张';
   $('#btn-export').disabled = !src;
   $('#btn-restore-bg').hidden = !(sp && sp.base && (sp.custom || sp.cleared));
 
@@ -491,8 +554,9 @@ function renderLayerBar() {
     const swipeTip = (curDay()?.spots?.length > 1 || S.days.length > 1)
       ? ' · 主图左右滑切换景点，滑到头换一天'
       : '';
+    const pinchTip = isNarrow() ? ' · 双指可旋转/缩放单品' : '';
     $('#stage-hint').textContent = isNarrow()
-      ? `点下面衣橱里的单品就会贴到这张照片上 · 贴上去后按住就能挪${swipeTip}`
+      ? `点下面衣橱里的单品就会贴到这张照片上 · 贴上去后按住就能挪${pinchTip}${swipeTip}`
       : (list.length
         ? `点一下画面里的单品可以调整它 · 也可以继续从右边拖新的进来${swipeTip}`
         : `把右边衣橱里的单品拖进来 · 也可以直接把电脑里的图片拖到这张照片上${swipeTip}`);
@@ -1147,6 +1211,29 @@ function copyOutfitToAllDaySpots() {
   renderDayStrip();
   renderDaySummary();
   toast(`已复制到今日 ${others.length} 个景点`);
+}
+
+/* ------------------------------------------------------ 每日穿搭建议 */
+function renderOutfitTip() {
+  const box = $('#outfit-tip');
+  if (!box) return;
+  const o = tripDayMeta()?.outfit;
+  if (!o || (!o.summary && !(o.lines?.length))) {
+    box.hidden = true;
+    box.innerHTML = '';
+    return;
+  }
+  box.hidden = false;
+  const lines = (o.lines || []).map((line) =>
+    `<li${line.startsWith('⛪') ? ' class="is-church"' : ''}>${esc(line)}</li>`
+  ).join('');
+  box.innerHTML = `
+    <div class="outfit-tip-head">
+      <span class="outfit-tip-icon" aria-hidden="true">👗</span>
+      <h4>每日穿搭建议</h4>
+      ${o.summary ? `<p class="outfit-tip-summary">${esc(o.summary)}</p>` : ''}
+    </div>
+    ${lines ? `<ul class="outfit-tip-list">${lines}</ul>` : ''}`;
 }
 
 /* ------------------------------------------------------ 今日穿搭汇总 */
@@ -1873,6 +1960,7 @@ function refreshDaysFromTrip(keepWardrobe) {
   renderAll();
   syncStickyTop();
   initStageSwipe();
+  initLayerPinch();
 })();
 
 })();

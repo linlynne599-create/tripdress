@@ -197,6 +197,40 @@ p { margin: 0; }
 }
 .stage-hint { font-size: 12px; color: var(--ink-3); text-align: center; }
 
+.outfit-tip {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-size: 13px;
+}
+.outfit-tip-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-bottom: 6px;
+}
+.outfit-tip-icon { font-size: 1rem; line-height: 1; }
+.outfit-tip h4 { margin: 0; font-size: 13px; font-weight: 600; }
+.outfit-tip-summary {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.outfit-tip-list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.outfit-tip-list li { margin-bottom: 3px; }
+.outfit-tip-list li.is-church { color: var(--danger); font-weight: 600; }
+
 /* ------------------------------------------------------------- 图层 */
 .layer {
   position: absolute;
