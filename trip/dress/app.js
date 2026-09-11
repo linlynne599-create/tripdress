@@ -2011,23 +2011,49 @@ async function removePeopleFromImage(src, onStep) {
   return full.toDataURL('image/jpeg', 0.9);
 }
 
-async function despersonSpotPhoto() {
-  const sp = curSpot();
-  const src = sp && spotSrc(sp);
-  if (!sp || !src) { toast('先选一张有照片的景点'); return; }
+async function despersonDayPhotos() {
+  const d = curDay();
+  if (!d) return;
+  const targets = (d.spots || []).filter((sp) => spotSrc(sp));
+  if (!targets.length) { toast('这一天还没有带照片的景点'); return; }
+  const n = targets.length;
   if (!confirm(
-    '【去人物 · 粗略】\n'
-    + '用浏览器里的小模型认出人体，再把那块区域用周围颜色糊满。\n'
-    + '第一次约 5MB 下载；效果不精细，远处小人可能还在。\n\n'
+    '【去人物 · 粗略 · 当日全部】\n'
+    + `将对今天 ${n} 张景点照片逐张去人物。\n`
+    + '用浏览器里的小模型识别人体并填背景；第一次约 5MB 下载，效果不精细，远处小人可能还在。\n\n'
     + '确定继续？'
   )) return;
+
   const tip = stickyToast('准备中…');
+  let done = 0;
+  let noPerson = 0;
+  const failed = [];
+
   try {
-    const out = await removePeopleFromImage(src, tip.set);
-    sp.custom = out;
-    sp.cleared = false;
-    save(); renderStage(); renderRail();
-    tip.done('好了，可继续贴穿搭 · 不满意点「恢复原图」');
+    for (let i = 0; i < targets.length; i++) {
+      const sp = targets[i];
+      const src = spotSrc(sp);
+      tip.set(`正在去人物 ${i + 1}/${n} · ${sp.title}`);
+      try {
+        const out = await removePeopleFromImage(src, tip.set);
+        sp.custom = out;
+        sp.cleared = false;
+        done++;
+      } catch (e) {
+        if (e?.message === 'no person') noPerson++;
+        else failed.push(sp.title);
+        console.warn('desperson', sp.title, e);
+      }
+    }
+    save();
+    renderStage();
+    renderRail();
+    const parts = [];
+    if (done) parts.push(`${done} 张已处理`);
+    if (noPerson) parts.push(`${noPerson} 张未检测到人物`);
+    if (failed.length) parts.push(`${failed.length} 张失败`);
+    tip.done(parts.length ? `当日去人物完成：${parts.join('，')}` : '没有处理任何照片');
+    if (failed.length) toast(`失败：${failed.slice(0, 2).join('、')}${failed.length > 2 ? '…' : ''}`);
   } catch (e) {
     console.warn('desperson', e);
     bodyPixNet = null;
@@ -2048,7 +2074,7 @@ $('#btn-empty-add').onclick = () => {
 $('#btn-export').onclick = exportPNG;
 $('#btn-replace-bg').onclick = () => { const sp = curSpot(); if (sp) replaceSpotPhoto(sp); };
 $('#btn-copy-day').onclick = () => copyOutfitToAllDaySpots();
-$('#btn-desperson').onclick = () => despersonSpotPhoto();
+$('#btn-desperson').onclick = () => despersonDayPhotos();
 $('#btn-restore-bg').onclick = () => {
   const sp = curSpot();
   if (!sp) return;
