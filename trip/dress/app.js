@@ -721,7 +721,7 @@ function renderLayerBar() {
   if (!L) {
     bar.hidden = true;
     const swipeTip = (curDay()?.spots?.length > 1 || S.days.length > 1)
-      ? ' · 主图左右滑切换景点，滑到头换一天'
+      ? ' · 主图左右滑切换景点，可跨天'
       : '';
     const pinchTip = isNarrow() ? ' · 双指可旋转/缩放单品' : '';
     $('#stage-hint').textContent = isNarrow()
