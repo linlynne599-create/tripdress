@@ -217,14 +217,14 @@ p { margin: 0; }
   gap: 6px;
 }
 .stage-btn-sep {
-  color: var(--ink-3);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1;
-  user-select: none;
-  padding: 0 1px;
-  opacity: .55;
+  flex: none;
+  width: 1px;
+  height: 18px;
+  background: var(--line-2);
+  margin: 0 2px;
+  align-self: center;
 }
+.lbl-narrow { display: none; }
 
 .stage-wrap { display: flex; flex-direction: column; gap: 8px; }
 
@@ -668,14 +668,40 @@ p { margin: 0; }
   }
   .stage { --maxh: 34vh; }
   .day-weather { padding: 6px 14px; }
-  .stage-head h2 { font-size: 16px; }
+  .stage-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .stage-head h2 {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .stage-sub { display: none; }
   .stage-hint { display: none; }
   .layerbar { padding: 7px 9px; gap: 8px; }
-  .stage-head-btns { gap: 8px; }
-  .stage-btn-group { gap: 6px; }
-  .stage-btn-sep { font-size: 12px; opacity: .85; }
-  .stage-head-btns .btn-sm { font-size: 11.5px; padding: 3px 8px; }
+  .stage-head-btns {
+    margin-left: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    gap: 6px;
+    padding: 1px 0 3px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .stage-head-btns::-webkit-scrollbar { display: none; }
+  .stage-btn-group { flex-wrap: nowrap; flex: none; gap: 6px; }
+  .stage-head-btns .btn-sm {
+    flex: none;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 4px 9px;
+  }
+  .lbl-wide { display: none; }
+  .lbl-narrow { display: inline; }
 }
 @media (max-width: 560px) {
   .topbar { padding: 0 14px; gap: 10px; }
