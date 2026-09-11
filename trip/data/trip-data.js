@@ -73,7 +73,7 @@ window.TRIP = (function () {
       },
       items: [
         { time: '19:30', title: '厦门 T3 机场集合', note: '19:30 到机场集合' },
-        { time: '21:30–01:40', title: '厦门 T3 → 新加坡樟宜 T1', kind: 'flight', status: 'booked' },
+        { time: '21:30–01:40', title: '厦门 T3 → 新加坡樟宜 T1', kind: 'flight', status: 'booked', img: 'singapore' },
       ],
     },
     {
