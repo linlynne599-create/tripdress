@@ -181,7 +181,7 @@ p { margin: 0; }
   border-radius: var(--r);
   box-shadow: var(--sh-2);
   overflow: hidden;
-  touch-action: pan-y;
+  touch-action: pan-x pan-y;
   outline: none;
 }
 .stage.drop-on { box-shadow: 0 0 0 2px var(--focus), var(--sh-2); }
@@ -191,6 +191,9 @@ p { margin: 0; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   color: var(--ink-3); font-size: 14px; text-align: center; padding: 20px;
   background: var(--surface-2);
+}
+.stage-pager {
+  font-size: 12px; color: var(--ink-2); text-align: center; font-weight: 500;
 }
 .stage-hint { font-size: 12px; color: var(--ink-3); text-align: center; }
 

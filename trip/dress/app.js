@@ -315,6 +315,95 @@ function renderDayStrip() {
   keepInView(box, $('.daychip.on', box));
 }
 
+/* ---------------------------------------------------- 主图左右滑：景点 / 跨天 */
+function updateStagePager() {
+  const el = $('#stage-pager');
+  const d = curDay();
+  const sp = curSpot();
+  if (!el || !d) { if (el) el.hidden = true; return; }
+  const spots = d.spots || [];
+  const si = sp ? spots.findIndex((s) => s.id === sp.id) : -1;
+  const spotIdx = si >= 0 ? si + 1 : (spots.length ? 1 : 0);
+  const di = S.days.findIndex((x) => x.id === d.id);
+  if (spots.length <= 1 && S.days.length <= 1) { el.hidden = true; return; }
+  el.hidden = false;
+  el.textContent = spots.length
+    ? `穿搭 ${spotIdx} / ${spots.length} · ${d.date} ${d.weekday}（第 ${di + 1}/${S.days.length} 天）`
+    : `${d.date} ${d.weekday}（第 ${di + 1}/${S.days.length} 天）`;
+}
+
+function goSpotByDelta(delta) {
+  const d = curDay();
+  if (!d?.spots?.length) return false;
+  const i = d.spots.findIndex((s) => s.id === S.curSpot);
+  const next = (i < 0 ? 0 : i) + delta;
+  if (next < 0 || next >= d.spots.length) return false;
+  S.curSpot = d.spots[next].id;
+  sel = null;
+  save();
+  renderStage();
+  renderRail();
+  renderDayStrip();
+  renderDaySummary();
+  return true;
+}
+
+function goDayByDelta(delta) {
+  const di = S.days.findIndex((x) => x.id === S.curDay);
+  const ni = di + delta;
+  if (ni < 0 || ni >= S.days.length) return false;
+  const day = S.days[ni];
+  S.curDay = day.id;
+  S.curSpot = delta > 0
+    ? (day.spots[0]?.id || null)
+    : (day.spots[day.spots.length - 1]?.id || null);
+  sel = null;
+  save();
+  renderAll();
+  return true;
+}
+
+function stageSwipeNext() {
+  if (goSpotByDelta(1)) return;
+  goDayByDelta(1);
+}
+
+function stageSwipePrev() {
+  if (goSpotByDelta(-1)) return;
+  goDayByDelta(-1);
+}
+
+function initStageSwipe() {
+  const wrap = $('.stage-wrap');
+  if (!wrap || wrap.dataset.swipe) return;
+  wrap.dataset.swipe = '1';
+  let x0 = 0; let y0 = 0; let ok = false; let moved = false;
+
+  wrap.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.target.closest('.layer, .handle, button, input, .layerbar')) return;
+    x0 = e.clientX; y0 = e.clientY;
+    ok = true;
+    moved = false;
+  });
+  wrap.addEventListener('pointermove', (e) => {
+    if (!ok) return;
+    if (Math.hypot(e.clientX - x0, e.clientY - y0) > 8) moved = true;
+  });
+  wrap.addEventListener('pointerup', (e) => {
+    if (!ok) return;
+    ok = false;
+    if (e.target.closest('.layer, .handle')) return;
+    const dx = e.clientX - x0;
+    const dy = e.clientY - y0;
+    if (!moved || Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
+    if (dx < 0) stageSwipeNext();
+    else stageSwipePrev();
+  });
+  wrap.addEventListener('pointercancel', () => { ok = false; });
+
+}
+
 /* ------------------------------------------------------------ 预览台 */
 function renderStage() {
   const d = curDay();
@@ -341,6 +430,7 @@ function renderStage() {
     $('#btn-empty-add').textContent = sp ? '给这个地点加张照片' : '导入一张景点照片';
     $('#stage-empty').hidden = false;
     $('#layerbar').hidden = true;
+    updateStagePager();
     return;
   }
 
@@ -352,6 +442,7 @@ function renderStage() {
 
   layersOf(spotKey()).forEach((L) => stage.appendChild(buildLayer(L)));
   renderLayerBar();
+  updateStagePager();
 }
 
 function buildLayer(L) {
@@ -397,11 +488,14 @@ function renderLayerBar() {
   const L = list.find((x) => x.id === sel);
   if (!L) {
     bar.hidden = true;
+    const swipeTip = (curDay()?.spots?.length > 1 || S.days.length > 1)
+      ? ' · 主图左右滑切换景点，滑到头换一天'
+      : '';
     $('#stage-hint').textContent = isNarrow()
-      ? '点下面衣橱里的单品就会贴到这张照片上 · 贴上去后按住就能挪、拖角上的圈能缩放'
+      ? `点下面衣橱里的单品就会贴到这张照片上 · 贴上去后按住就能挪${swipeTip}`
       : (list.length
-        ? '点一下画面里的单品可以调整它 · 也可以继续从右边拖新的进来'
-        : '把右边衣橱里的单品拖进来 · 也可以直接把电脑里的图片拖到这张照片上');
+        ? `点一下画面里的单品可以调整它 · 也可以继续从右边拖新的进来${swipeTip}`
+        : `把右边衣橱里的单品拖进来 · 也可以直接把电脑里的图片拖到这张照片上${swipeTip}`);
     return;
   }
   bar.hidden = false;
@@ -1710,7 +1804,11 @@ $('#btn-reset').onclick = async () => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !$('#modal').hidden) { closeModal(); return; }
   if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
-  if (!sel) return;
+  if (!sel) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stageSwipePrev(); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); stageSwipeNext(); return; }
+    return;
+  }
   const L = layersOf(spotKey()).find((x) => x.id === sel);
   if (!L) return;
   const step = e.shiftKey ? 0.02 : 0.005;
@@ -1774,6 +1872,7 @@ function refreshDaysFromTrip(keepWardrobe) {
   if (!curSpot() && curDay()) S.curSpot = curDay().spots[0]?.id || null;
   renderAll();
   syncStickyTop();
+  initStageSwipe();
 })();
 
 })();
