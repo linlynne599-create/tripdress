@@ -604,10 +604,12 @@ function renderWardrobe() {
         <img src="${esc(it.useCut && it.cut ? it.cut : it.src)}" alt="${esc(it.name)}" />
         <div class="piece-n" title="${esc(it.name)}">${esc(it.name)}</div>
         <div class="piece-tools">
+          <button type="button" data-a="crop" title="裁剪">⛶</button>
           <button type="button" data-a="cut" title="一键去白底">✂</button>
           <button type="button" data-a="ren" title="改名字">✎</button>
           <button type="button" data-a="del" title="删掉">✕</button>
         </div>`;
+      el.querySelector('[data-a=crop]').onclick = (e) => { e.stopPropagation(); openCrop(it); };
       el.querySelector('[data-a=cut]').onclick = (e) => { e.stopPropagation(); toggleCut(it); };
       el.querySelector('[data-a=ren]').onclick = (e) => {
         e.stopPropagation();
@@ -681,6 +683,109 @@ function importPieces(catId) {
     const made = await addItemsFromFiles(files, catId);
     if (made.length) toast('导好了，拖到左边照片上试试');
   });
+}
+
+/* -------------------------------------------------------------- 裁剪单品 */
+/* 裁剪框用「占整张图的比例」存，这样显示多大都能换算回原图像素 */
+function openCrop(it) {
+  const shown = it.useCut && it.cut ? it.cut : it.src;
+  let box = { x: 0.06, y: 0.06, w: 0.88, h: 0.88 };
+  const MIN = 0.08;
+
+  openModal(`
+    <h3>裁剪「${esc(it.name)}」</h3>
+    <p class="m-note">拖框里面挪位置，拖四个角改大小。裁掉多余的背景，贴到照片上会更像一体的。</p>
+    <div class="cropwrap">
+      <div class="cropbox" id="cr-box">
+        <img id="cr-img" src="${esc(shown)}" alt="" draggable="false" />
+        <div class="crop-rect" id="cr-rect">
+          <span class="cr-h" data-h="nw"></span><span class="cr-h" data-h="ne"></span>
+          <span class="cr-h" data-h="sw"></span><span class="cr-h" data-h="se"></span>
+        </div>
+      </div>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-go" id="cr-ok" type="button">裁好了</button>
+      <button class="btn" id="cr-all" type="button">选整张</button>
+      <button class="btn" id="cr-cancel" type="button">取消</button>
+    </div>
+  `, (close) => {
+    const rect = $('#cr-rect');
+    const area = $('#cr-box');
+
+    const paint = () => {
+      rect.style.left = box.x * 100 + '%';
+      rect.style.top = box.y * 100 + '%';
+      rect.style.width = box.w * 100 + '%';
+      rect.style.height = box.h * 100 + '%';
+    };
+    paint();
+
+    const grab = (e, mode) => {
+      if (e.button > 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const bounds = area.getBoundingClientRect();
+      const s = { ...box };
+      const sx = e.clientX, sy = e.clientY;
+
+      const move = (ev) => {
+        const dx = (ev.clientX - sx) / bounds.width;
+        const dy = (ev.clientY - sy) / bounds.height;
+        if (mode === 'move') {
+          box.x = clamp(s.x + dx, 0, 1 - s.w);
+          box.y = clamp(s.y + dy, 0, 1 - s.h);
+        } else {
+          const west = mode.includes('w'), north = mode.includes('n');
+          const r = s.x + s.w, b = s.y + s.h;
+          if (west) { box.x = clamp(s.x + dx, 0, r - MIN); box.w = r - box.x; }
+          else { box.w = clamp(s.w + dx, MIN, 1 - s.x); }
+          if (north) { box.y = clamp(s.y + dy, 0, b - MIN); box.h = b - box.y; }
+          else { box.h = clamp(s.h + dy, MIN, 1 - s.y); }
+        }
+        paint();
+      };
+      const up = () => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+      };
+      window.addEventListener('pointermove', move, { passive: false });
+      window.addEventListener('pointerup', up);
+    };
+
+    rect.addEventListener('pointerdown', (e) => {
+      if (e.target.dataset.h) grab(e, e.target.dataset.h); else grab(e, 'move');
+    });
+
+    $('#cr-all').onclick = () => { box = { x: 0, y: 0, w: 1, h: 1 }; paint(); };
+    $('#cr-cancel').onclick = close;
+    $('#cr-ok').onclick = async () => {
+      if (box.w > 0.995 && box.h > 0.995) { close(); return; }
+      toast('正在裁…');
+      try {
+        it.src = await cropSrc(it.src, box);
+        if (it.cut) it.cut = await cropSrc(it.cut, box);   // 去白底那张要跟着裁，不然切回去就错位
+        save(); renderWardrobe(); renderDayLook(); renderStage();
+        close();
+        toast('裁好了');
+      } catch { toast('裁剪失败，换一张试试'); }
+    };
+  });
+}
+
+async function cropSrc(src, box) {
+  const im = await loadImg(src, true);
+  const sx = Math.round(box.x * im.naturalWidth);
+  const sy = Math.round(box.y * im.naturalHeight);
+  const sw = Math.max(1, Math.round(box.w * im.naturalWidth));
+  const sh = Math.max(1, Math.round(box.h * im.naturalHeight));
+  const k = Math.min(1, 1200 / Math.max(sw, sh));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(sw * k));
+  c.height = Math.max(1, Math.round(sh * k));
+  c.getContext('2d').drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  const alpha = /^data:image\/png/i.test(src);
+  return c.toDataURL(alpha ? 'image/png' : 'image/jpeg', 0.9);
 }
 
 async function toggleCut(it) {

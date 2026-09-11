@@ -281,7 +281,7 @@ p { margin: 0; }
 }
 .spot:hover .spot-x { display: block; }
 /* 触屏没有 hover，删除按钮得一直露着 */
-@media (hover: none) { .spot-x { display: block; } }
+@media (hover: none), (max-width: 940px) { .spot-x { display: block; } }
 
 /* 删掉照片但行程还在的地点 */
 .spot.blank { border-style: dashed; background: var(--cream-2); }
@@ -360,8 +360,15 @@ p { margin: 0; }
   font-size: 11px; padding: 2px 5px 4px; line-height: 1.3;
   text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.piece-tools { position: absolute; top: 3px; right: 3px; display: flex; gap: 3px; opacity: 0; transition: opacity .12s; }
+/* 四个小按钮排成 2×2，单品格子只有 78px 宽，一排放不下 */
+.piece-tools {
+  position: absolute; top: 3px; right: 3px;
+  display: grid; grid-template-columns: repeat(2, 20px); gap: 3px;
+  opacity: 0; transition: opacity .12s;
+}
 .piece:hover .piece-tools { opacity: 1; }
+/* 触屏没有 hover，按钮得一直露着（窄屏也算，有些浏览器的 hover 判断不准） */
+@media (hover: none), (max-width: 940px) { .piece-tools { opacity: 1; } }
 .piece-tools button {
   width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--outline);
   background: var(--paper); font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
@@ -421,6 +428,38 @@ p { margin: 0; }
   background: var(--cream-2); border: 1.5px dashed var(--line); border-radius: 10px;
   padding: 9px 11px; font-size: 12px; overflow-x: auto; margin: 6px 0 0; line-height: 1.55;
 }
+/* ------------------------------------------------------------ 裁剪弹窗 */
+.cropwrap { display: flex; justify-content: center; margin: 6px 0 2px; }
+.cropbox {
+  position: relative; display: inline-block; line-height: 0;
+  overflow: hidden;                      /* 挡住裁剪框那个超大扩散阴影 */
+  border-radius: var(--wob-sm);
+  border: var(--bd-thin);
+  background: repeating-conic-gradient(#f3ead9 0% 25%, #fffdf7 0% 50%) 50% / 16px 16px;
+  touch-action: none;
+}
+.cropbox img {
+  display: block; max-width: 100%; max-height: 46vh;
+  -webkit-user-drag: none; user-select: none; -webkit-touch-callout: none;
+}
+.crop-rect {
+  position: absolute;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 9999px rgba(38, 28, 22, .55);   /* 框外面自动变暗 */
+  cursor: move;
+  touch-action: none;
+}
+.cr-h {
+  position: absolute; width: 20px; height: 20px;
+  background: var(--paper); border: var(--bd-thin); border-radius: 50%;
+  box-shadow: var(--ink-shadow-sm);
+  touch-action: none;
+}
+.cr-h[data-h=nw] { left: -10px; top: -10px; cursor: nwse-resize; }
+.cr-h[data-h=ne] { right: -10px; top: -10px; cursor: nesw-resize; }
+.cr-h[data-h=sw] { left: -10px; bottom: -10px; cursor: nesw-resize; }
+.cr-h[data-h=se] { right: -10px; bottom: -10px; cursor: nwse-resize; }
+
 .m-actions { display: flex; gap: 9px; margin-top: 18px; flex-wrap: wrap; }
 .m-actions .spacer { margin-left: auto; }
 .chiprow { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
